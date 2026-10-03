@@ -76,7 +76,7 @@
     var link = e.target.closest('a');
     if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return;
     var id = videoId(link);
-    if (!id || link.closest('.explore')) return;
+    if (!id || link.closest('.explore, .no-player')) return;
     e.preventDefault();
     open(id);
   });

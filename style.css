@@ -248,3 +248,6 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 .mission-cta{align-self:flex-start;margin-top:8px}
 .back-link{display:inline-block;margin-top:40px;font-size:12px;letter-spacing:1px;color:var(--muted)}
 .back-link:hover{color:var(--accent)}
+.yt-channel{display:inline-flex;margin-top:32px}
+.yt-channel + .back-link{display:block;margin-top:24px}
+.mission-thumb{position:absolute;inset:0}
