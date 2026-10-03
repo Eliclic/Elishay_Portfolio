@@ -89,7 +89,20 @@
 // puis doublée pour que le défilement boucle sans saut.
 (function () {
   document.querySelectorAll('.icons.marquee').forEach(function (box) {
-    var logos = Array.prototype.slice.call(box.children);
+    // Chaque logo reçoit une étiquette avec le nom du logiciel, visible au survol.
+    var logos = Array.prototype.slice.call(box.children).map(function (img) {
+      var item = document.createElement('span');
+      item.className = 'logo-item';
+      var name = document.createElement('span');
+      name.className = 'logo-name mono';
+      name.textContent = img.getAttribute('title') || img.alt;
+      name.setAttribute('aria-hidden', 'true');
+      img.removeAttribute('title');
+      box.replaceChild(item, img);
+      item.appendChild(img);
+      item.appendChild(name);
+      return item;
+    });
     var track = document.createElement('div');
     track.className = 'marquee-track';
     var set = document.createElement('div');
@@ -103,7 +116,7 @@
       logos.forEach(function (el) {
         var c = el.cloneNode(true);
         c.setAttribute('aria-hidden', 'true');
-        c.alt = '';
+        c.querySelector('img').alt = '';
         set.appendChild(c);
       });
     }

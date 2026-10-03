@@ -260,3 +260,9 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 .icons.marquee:hover .marquee-track{animation-play-state:paused}
 @keyframes marquee{to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.marquee-track{animation:none}.icons.marquee{-webkit-mask-image:none;mask-image:none}}
+.icons.marquee{padding:4px 0 34px}
+.logo-item{position:relative;display:flex;flex:none}
+.logo-name{position:absolute;top:calc(100% + 10px);left:50%;transform:translate(-50%,-4px);white-space:nowrap;padding:4px 8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--bg);background:var(--ink);border-radius:4px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.logo-item:hover .logo-name{opacity:1;transform:translate(-50%,0)}
+.logo-item img{transition:transform .2s}
+.logo-item:hover img{transform:translateY(-3px)}
