@@ -3,10 +3,10 @@
 :root{
   --display:'Coolvetica','Inter',system-ui,sans-serif;
   --accent:#4B5A2A;
-  --bg:#F7EEE6;
-  --surface:#EFE3D7;
-  --line:#DDD2C6;
-  --line-strong:#B5AA9E;
+  --bg:#F2EAE9;
+  --surface:#E9DFDD;
+  --line:#DCD1CF;
+  --line-strong:#B3A7A5;
   --ink:#161615;
   --text:#2a2926;
   --muted:#6a6762;
