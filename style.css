@@ -186,7 +186,7 @@ img{max-width:100%}
 @media (max-width:760px){.grade{grid-template-columns:1fr}}
 
 /* VFX */
-.vfx-layout{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;align-items:stretch}
+.vfx-layout{display:grid;grid-template-columns:1fr;gap:16px;margin-top:24px}
 .vfx-empty{min-height:340px;padding:28px;background:var(--bg);border:1px dashed var(--accent)}
 .vfx-empty:hover{transform:none}
 .vfx-empty .card-sub{max-width:44ch}
