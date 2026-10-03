@@ -267,6 +267,5 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 .logo-item img{transition:transform .2s}
 .logo-item:hover img{transform:translateY(-3px)}
 
-/* Aberration chromatique permanente (filtre #chroma injecté par main.js) */
-.logo-item img,.explore-card .thumb,.explore-card .explore-asset svg{filter:url(#chroma)}
+/* Aberration chromatique sur les titres des rubriques de l'accueil */
 .explore-card .explore-title{text-shadow:-3.5px 0 rgba(255,40,80,.75),3.5px 0 rgba(0,210,255,.75)}

@@ -127,29 +127,3 @@
     track.style.setProperty('--marquee-dur', Math.max(20, set.scrollWidth / 40) + 's');
   });
 })();
-
-// Aberration chromatique permanente : filtre SVG qui décale les canaux rouge et bleu.
-(function () {
-  var ns = 'http://www.w3.org/2000/svg';
-  var svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('width', '0');
-  svg.setAttribute('height', '0');
-  svg.setAttribute('aria-hidden', 'true');
-  svg.style.position = 'absolute';
-  // #chroma : décalage des canaux, toujours visible.
-  function filter(id, dx, animated) {
-    function off(src, sign) {
-      var anim = animated ? '<animate attributeName="dx" values="' +
-        [dx, dx + 2, dx - 1, dx + 1, dx].map(function (v) { return v * sign; }).join(';') +
-        '" dur=".7s" repeatCount="indefinite"/>' : '';
-      return '<feOffset in="' + src + '" dx="' + dx * sign + '" dy="0" result="' + src + '2">' + anim + '</feOffset>';
-    }
-    return '<filter id="' + id + '" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">' +
-      '<feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>' + off('r', -1) +
-      '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>' +
-      '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>' + off('b', 1) +
-      '<feBlend in="r2" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="b2" mode="screen"/></filter>';
-  }
-  svg.innerHTML = filter('chroma', 3.5, false);
-  document.body.appendChild(svg);
-})();
