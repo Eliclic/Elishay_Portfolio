@@ -50,10 +50,6 @@ img{max-width:100%}
 .card:hover{border-color:var(--accent);transform:translateY(-3px);color:var(--ink)}
 .card-meta{position:relative;z-index:1;display:flex;justify-content:space-between;gap:12px;font-size:11px;letter-spacing:1px;color:var(--muted)}
 
-.showreel{aspect-ratio:16/7;min-height:260px;padding:clamp(18px,3vw,32px)}
-.showreel .card-meta{flex-wrap:wrap;font-size:12px;letter-spacing:1.5px}
-.showreel-title{display:flex;align-items:center;gap:24px;font-weight:500;font-size:clamp(24px,3.4vw,44px);letter-spacing:-.03em}
-.play{width:80px;height:80px;flex-shrink:0;border:1px solid var(--accent);display:flex;align-items:center;justify-content:center}
 
 /* Sections */
 .section{display:flex;flex-direction:column;gap:32px;padding:clamp(80px,10vw,128px) 0 0}
