@@ -153,8 +153,9 @@ img{max-width:100%}
 .section-tight{padding-top:clamp(56px,7vw,88px)}
 
 /* Home: explore cards */
-.explore{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
-.explore-card{aspect-ratio:4/5;max-height:520px;padding:28px}
+.explore{display:flex;flex-direction:column;gap:16px}
+.explore-card{aspect-ratio:21/8;min-height:240px;max-width:100%;padding:clamp(20px,3vw,36px)}
+.explore-card .explore-title{font-size:clamp(40px,6vw,88px)}
 .explore-title{font-weight:800;font-size:clamp(36px,4vw,52px);letter-spacing:-.04em;line-height:1}
 .card.dark{background:var(--dark);border-color:var(--dark);color:#f2f2ef}
 .card.dark .card-meta{color:#b7c48a}
