@@ -111,7 +111,6 @@ img{max-width:100%}
 .skill-box .label{font-size:12px;letter-spacing:1px;color:var(--muted)}
 .icons{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .icons img{width:44px;height:44px;border-radius:9px;object-fit:contain}
-.icon-placeholder{width:44px;height:44px;border-radius:9px;border:1px dashed var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted)}
 
 /* Contact */
 .contact{display:flex;flex-direction:column;gap:40px;padding:clamp(96px,12vw,160px) 0 clamp(80px,10vw,120px)}
