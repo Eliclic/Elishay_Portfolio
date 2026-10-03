@@ -136,15 +136,20 @@
   svg.setAttribute('height', '0');
   svg.setAttribute('aria-hidden', 'true');
   svg.style.position = 'absolute';
-  svg.innerHTML =
-    '<filter id="chroma" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">' +
-    '<feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>' +
-    '<feOffset in="r" dx="-3" dy="0" result="r2"><animate attributeName="dx" values="-3;-5;-2;-4;-3" dur=".7s" repeatCount="indefinite"/></feOffset>' +
-    '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>' +
-    '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>' +
-    '<feOffset in="b" dx="3" dy="0" result="b2"><animate attributeName="dx" values="3;5;2;4;3" dur=".7s" repeatCount="indefinite"/></feOffset>' +
-    '<feBlend in="r2" in2="g" mode="screen" result="rg"/>' +
-    '<feBlend in="rg" in2="b2" mode="screen"/>' +
-    '</filter>';
+  // #chroma : décalage léger, toujours visible. #chroma-live : plus fort et animé, au survol.
+  function filter(id, dx, animated) {
+    function off(src, sign) {
+      var anim = animated ? '<animate attributeName="dx" values="' +
+        [dx, dx + 2, dx - 1, dx + 1, dx].map(function (v) { return v * sign; }).join(';') +
+        '" dur=".7s" repeatCount="indefinite"/>' : '';
+      return '<feOffset in="' + src + '" dx="' + dx * sign + '" dy="0" result="' + src + '2">' + anim + '</feOffset>';
+    }
+    return '<filter id="' + id + '" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">' +
+      '<feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>' + off('r', -1) +
+      '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>' +
+      '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>' + off('b', 1) +
+      '<feBlend in="r2" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="b2" mode="screen"/></filter>';
+  }
+  svg.innerHTML = filter('chroma', 1.5, false) + filter('chroma-live', 3, true);
   document.body.appendChild(svg);
 })();
