@@ -236,3 +236,15 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 .explore-asset svg{width:100%;height:auto;max-height:220px;overflow:visible}
 .explore-card:hover .explore-asset{transform:translateY(-4px);box-shadow:0 28px 60px -20px rgba(0,0,0,.7),0 0 0 1px rgba(198,214,143,.35)}
 @media (max-width:760px){.explore-card{grid-template-columns:1fr;min-height:0}.explore-asset{order:-1}.explore-asset svg{max-height:150px}}
+
+/* Oulpan Lavi : grille de reels Instagram (embed.js remplace chaque bloc par le lecteur) */
+.reels{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:24px;align-items:start}
+.reels .instagram-media{margin:0!important;min-width:0!important;width:100%!important;max-width:100%!important}
+.reel{position:relative;aspect-ratio:9/16;background:var(--dark);border-radius:14px;overflow:hidden;padding:0;border:0}
+.reel-fallback{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:18px;color:#e4e8d2;font-size:11px;letter-spacing:1px;background:radial-gradient(120% 70% at 50% 0%,rgba(183,196,138,.22),transparent 60%),linear-gradient(160deg,#3a4522,#1c2011 70%)}
+.reel-play{align-self:center;display:grid;place-items:center;width:64px;height:64px;border-radius:50%;border:1px solid rgba(228,232,210,.5);font-size:20px;padding-left:4px;transition:transform .4s,background .4s}
+.reel-fallback:hover .reel-play{transform:scale(1.08);background:rgba(183,196,138,.25)}
+.reel-fallback:hover .reel-cta{color:#b7c48a}
+.mission-cta{align-self:flex-start;margin-top:8px}
+.back-link{display:inline-block;margin-top:40px;font-size:12px;letter-spacing:1px;color:var(--muted)}
+.back-link:hover{color:var(--accent)}
