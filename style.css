@@ -282,3 +282,14 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 .explore .explore-card.stack-panel{background:var(--dark);margin-bottom:20vh}
 .explore .explore-card.stack-panel:last-child{margin-bottom:0}
 .explore .explore-card.stack-panel:hover{transform:none}
+
+/* Photos en polaroïd dans le fond, dépassant des marges (main.js) */
+body{position:relative}
+.page{position:relative;z-index:1}
+.photo-layer{position:absolute;top:0;left:0;width:100%;overflow:hidden;pointer-events:none;z-index:0}
+.photo-layer.is-fixed{position:fixed;inset:0;height:auto}
+.polaroid{--w:clamp(150px,15vw,230px);position:absolute;top:var(--y);width:var(--w);margin:0;padding:10px 10px 42px;background:#fdfcf9;box-shadow:0 1px 2px rgba(0,0,0,.08),0 18px 40px -12px rgba(40,30,25,.35);transform:rotate(var(--r))}
+.polaroid img{display:block;width:100%;aspect-ratio:1;object-fit:cover;filter:saturate(.95) contrast(1.02)}
+.polaroid.left{left:calc((100vw - min(100vw,1280px)) / 2 - var(--w) * .5)}
+.polaroid.right{right:calc((100vw - min(100vw,1280px)) / 2 - var(--w) * .5)}
+@media (max-width:900px){.photo-layer{display:none}}

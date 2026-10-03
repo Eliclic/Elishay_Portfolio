@@ -214,3 +214,45 @@
   window.addEventListener('load', layout);
   layout();
 })();
+
+// Photos (polaroïds) en décor de fond. Chaque photo n'apparaît que sur une seule page ;
+// pour en ajouter, il suffit d'une ligne [fichier, page] dans cette liste.
+(function () {
+  var PHOTOS = [
+    ['palmiers', 'index'],
+    ['joggeur', 'index'],
+    ['concert-1', 'projets'],
+    ['coucher-soleil', 'etalonnage'],
+    ['charpente', 'vfx'],
+    ['sentier', 'freelance'],
+    ['nids', 'oulpan-lavi'],
+    ['concert-2', 'alexandre-triche']
+  ];
+  var page = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '');
+  if (page === 'accueil' || page === '') page = 'index';
+  var mine = PHOTOS.filter(function (p) { return p[1] === page; });
+  if (!mine.length) return;
+
+  var fixed = !!document.querySelector('.explore'); // accueil : les photos restent fixes derrière les panneaux
+  var layer = document.createElement('div');
+  layer.className = 'photo-layer' + (fixed ? ' is-fixed' : '');
+  layer.setAttribute('aria-hidden', 'true');
+  mine.forEach(function (p, k) {
+    var fig = document.createElement('figure');
+    fig.className = 'polaroid ' + (k % 2 ? 'right' : 'left');
+    // Inclinaison et hauteur légèrement variées pour un rendu « posé à la main ».
+    fig.style.setProperty('--r', (k % 2 ? 1 : -1) * (4 + (k * 3) % 5) + 'deg');
+    fig.style.setProperty('--y', ((k + 1) / (mine.length + 1) * 100 - 10 + (k % 2) * 12) + '%');
+    var img = document.createElement('img');
+    img.src = 'assets/photos/' + p[0] + '.jpg';
+    img.alt = '';
+    img.loading = 'lazy';
+    fig.appendChild(img);
+    layer.appendChild(fig);
+  });
+  document.body.insertBefore(layer, document.body.firstChild);
+  function size() { if (!fixed) layer.style.height = document.documentElement.scrollHeight + 'px'; }
+  window.addEventListener('load', size);
+  window.addEventListener('resize', size);
+  size();
+})();
