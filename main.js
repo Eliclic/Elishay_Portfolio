@@ -166,9 +166,12 @@
       // Bord haut adouci tant que le panneau monte (il redevient net une fois posé).
       var h2 = p.offsetHeight;
       var rise = p.getBoundingClientRect().top - Math.min(0, vh - h2);
-      var top = i === 0 ? 0 : Math.round(Math.min(90, Math.max(0, rise) * 0.25));
+      // Seulement quand le panneau recouvre celui d'avant, et seulement pendant le scroll.
+      var prev = panels[i - 1];
+      var overlapping = prev && rise < prev.offsetHeight;
+      var top = overlapping ? Math.round(Math.min(90, Math.max(0, rise) * 0.25) * activity) : 0;
       // Bas du panneau qui part : il se dissout progressivement, pas de ligne de coupure.
-      var bottom = e > 0 ? Math.round(20 + e * 60) : 0;
+      var bottom = e > 0 ? Math.round((20 + e * 60) * activity) : 0;
       if (top || bottom) {
         var mask = 'linear-gradient(to bottom, transparent 0, #000 ' + top + 'px, #000 ' + (100 - bottom) + '%, transparent 100%)';
         p.style.webkitMaskImage = p.style.maskImage = mask;
@@ -187,7 +190,25 @@
       p.style.visibility = t >= 1 ? 'hidden' : '';
     });
   }
-  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+  // « activity » vaut 1 pendant le scroll, puis redescend en douceur à 0 quand la page s'arrête :
+  // les bords fondus n'existent que pendant le mouvement.
+  var activity = 0, idleTimer = null, settling = null;
+  function settle() {
+    var start = performance.now();
+    cancelAnimationFrame(settling);
+    (function step(now) {
+      activity = Math.max(0, 1 - (now - start) / 350);
+      update();
+      if (activity > 0) settling = requestAnimationFrame(step);
+    })(start);
+  }
+  function onScroll() {
+    cancelAnimationFrame(settling);
+    activity = 1;
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(settle, 140);
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', layout);
   window.addEventListener('load', layout);

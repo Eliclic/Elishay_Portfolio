@@ -273,12 +273,7 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 /* Accueil : effet « sur place ». Chaque panneau reste collé à l'écran ; le suivant vient
    par-dessus et celui qui passe en arrière-plan se floute puis disparaît en fondu (main.js). */
 .stack-panel{position:sticky;top:var(--stick,0px);background:var(--bg);will-change:opacity,filter,transform}
-/* Bord supérieur adouci : un dégradé vers le fond précède chaque panneau clair qui arrive. */
-.stack-panel:not(.explore-card)::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:clamp(80px,14vh,160px);background:linear-gradient(to bottom,rgba(247,243,242,0),var(--bg));pointer-events:none}
-.stack-panel:not(.explore-card){isolation:isolate}
-#top.stack-panel::before{display:none}
-/* Les cartes sombres arrivent avec une ombre diffuse qui fond la jonction. */
-.explore .explore-card.stack-panel{box-shadow:0 -40px 60px -10px var(--bg)}
+
 /* La section Explorer et sa liste s'effacent de la mise en page pour que toutes les cartes
    partagent le même conteneur que les autres panneaux et restent collées jusqu'au bout. */
 .stacking #explorer,.stacking .explore{display:contents}
