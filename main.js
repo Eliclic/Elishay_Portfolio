@@ -161,14 +161,28 @@
         // Le fondu se termine un peu avant le recouvrement complet, pour ne laisser aucun reste visible.
         t = Math.min(1, Math.max(0, 1.3 * (stick + h - next.getBoundingClientRect().top) / Math.min(h, vh)));
       }
+      // Courbe douce (smoothstep) pour que le fondu démarre et finisse sans à-coup.
+      var e = t * t * (3 - 2 * t);
+      // Bord haut adouci tant que le panneau monte (il redevient net une fois posé).
+      var h2 = p.offsetHeight;
+      var rise = p.getBoundingClientRect().top - Math.min(0, vh - h2);
+      var top = i === 0 ? 0 : Math.round(Math.min(90, Math.max(0, rise) * 0.25));
+      // Bas du panneau qui part : il se dissout progressivement, pas de ligne de coupure.
+      var bottom = e > 0 ? Math.round(20 + e * 60) : 0;
+      if (top || bottom) {
+        var mask = 'linear-gradient(to bottom, transparent 0, #000 ' + top + 'px, #000 ' + (100 - bottom) + '%, transparent 100%)';
+        p.style.webkitMaskImage = p.style.maskImage = mask;
+      } else {
+        p.style.webkitMaskImage = p.style.maskImage = '';
+      }
       if (t <= 0) {
         p.style.opacity = '';
         p.style.filter = '';
         p.style.transform = '';
       } else {
-        p.style.opacity = (1 - t).toFixed(3);
-        p.style.filter = 'blur(' + (t * 14).toFixed(1) + 'px)';
-        p.style.transform = 'scale(' + (1 - t * 0.05).toFixed(4) + ')';
+        p.style.opacity = (1 - e).toFixed(3);
+        p.style.filter = 'blur(' + (e * 16).toFixed(1) + 'px)';
+        p.style.transform = 'scale(' + (1 - e * 0.05).toFixed(4) + ')';
       }
       p.style.visibility = t >= 1 ? 'hidden' : '';
     });
