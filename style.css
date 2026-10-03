@@ -233,7 +233,7 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 /* Explorer : visuel graphique dans chaque carte */
 .explore-card{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:stretch;aspect-ratio:auto;min-height:300px}
 .explore-text{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-width:0}
-.explore-asset{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;padding:clamp(14px,2vw,24px);background:rgba(247,238,230,.94);border:1px solid rgba(247,238,230,.4);transition:transform .4s cubic-bezier(.19,1,.22,1)}
+.explore-asset{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;padding:clamp(12px,1.6vw,18px);background:rgba(18,19,16,.78);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border:1px solid rgba(255,255,255,.12);border-radius:16px;box-shadow:0 20px 50px -20px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06);transition:transform .4s cubic-bezier(.19,1,.22,1),box-shadow .4s}
 .explore-asset svg{width:100%;height:auto;max-height:220px;overflow:visible}
-.explore-card:hover .explore-asset{transform:translateY(-4px)}
+.explore-card:hover .explore-asset{transform:translateY(-4px);box-shadow:0 28px 60px -20px rgba(0,0,0,.7),0 0 0 1px rgba(198,214,143,.35)}
 @media (max-width:760px){.explore-card{grid-template-columns:1fr;min-height:0}.explore-asset{order:-1}.explore-asset svg{max-height:150px}}
