@@ -127,3 +127,30 @@
     track.style.setProperty('--marquee-dur', Math.max(20, set.scrollWidth / 40) + 's');
   });
 })();
+
+// Accueil : effet « sur place ». Les rubriques Explorer sont collantes (CSS sticky) ;
+// quand la suivante arrive par-dessus, la précédente recule et s'assombrit légèrement.
+(function () {
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.explore .explore-card'));
+  if (!cards.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  cards.forEach(function (c, i) { c.style.setProperty('--i', i); });
+  var ticking = false;
+  function update() {
+    ticking = false;
+    cards.forEach(function (card, i) {
+      var next = cards[i + 1];
+      if (!next) return;
+      var top = card.getBoundingClientRect().top;
+      var gap = next.getBoundingClientRect().top - top;
+      var h = card.offsetHeight;
+      // 0 quand la carte suivante est encore loin, 1 quand elle recouvre entièrement celle-ci.
+      var p = Math.min(1, Math.max(0, 1 - gap / h));
+      card.style.setProperty('--s', (1 - p * 0.06).toFixed(4));
+      card.style.setProperty('--dim', (p * 0.35).toFixed(3));
+    });
+  }
+  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
+})();
