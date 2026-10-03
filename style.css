@@ -1,4 +1,7 @@
+/* Coolvetica (Typodermic, dafont) : déposer le fichier dans assets/fonts/ */
+@font-face{font-family:'Coolvetica';src:url('assets/fonts/coolvetica.woff2') format('woff2'),url('assets/fonts/coolvetica.otf') format('opentype'),url('assets/fonts/coolvetica.ttf') format('truetype');font-weight:400 900;font-display:swap}
 :root{
+  --display:'Coolvetica','Inter',system-ui,sans-serif;
   --accent:#4B5A2A;
   --bg:#F7EEE6;
   --surface:#EFE3D7;
@@ -189,3 +192,7 @@ img{max-width:100%}
 .tech-list{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column}
 .tech-list li{display:flex;flex-direction:column;gap:4px;padding:14px 0;border-top:1px solid var(--line)}
 .tech-list li:last-child{border-bottom:1px solid var(--line)}
+
+/* Display face */
+h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--display);font-synthesis:none}
+.page-hero h1{font-size:clamp(44px,7.5vw,112px)}
