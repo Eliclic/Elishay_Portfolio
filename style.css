@@ -251,3 +251,12 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 .yt-channel{display:inline-flex;margin-top:32px}
 .yt-channel + .back-link{display:block;margin-top:24px}
 .mission-thumb{position:absolute;inset:0}
+
+/* Logos des logiciels : défilement lent en boucle (main.js duplique la liste) */
+.icons.marquee{display:block;flex-wrap:nowrap;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marquee-track{display:flex;width:max-content;animation:marquee var(--marquee-dur,40s) linear infinite}
+.marquee-set{display:flex;align-items:center;gap:40px;padding-right:40px}
+.icons.marquee img{width:56px;height:56px;border-radius:12px;flex:none}
+.icons.marquee:hover .marquee-track{animation-play-state:paused}
+@keyframes marquee{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marquee-track{animation:none}.icons.marquee{-webkit-mask-image:none;mask-image:none}}

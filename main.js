@@ -84,3 +84,33 @@
   modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) close(); });
 })();
+
+// Logos des logiciels : la liste est répétée pour remplir la largeur,
+// puis doublée pour que le défilement boucle sans saut.
+(function () {
+  document.querySelectorAll('.icons.marquee').forEach(function (box) {
+    var logos = Array.prototype.slice.call(box.children);
+    var track = document.createElement('div');
+    track.className = 'marquee-track';
+    var set = document.createElement('div');
+    set.className = 'marquee-set';
+    logos.forEach(function (el) { set.appendChild(el); });
+    track.appendChild(set);
+    box.appendChild(track);
+    // Répète les logos tant qu'une série est plus étroite que le bloc.
+    var guard = 0;
+    while (set.scrollWidth < box.clientWidth && guard++ < 10) {
+      logos.forEach(function (el) {
+        var c = el.cloneNode(true);
+        c.setAttribute('aria-hidden', 'true');
+        c.alt = '';
+        set.appendChild(c);
+      });
+    }
+    var copy = set.cloneNode(true);
+    copy.setAttribute('aria-hidden', 'true');
+    track.appendChild(copy);
+    // Vitesse constante (environ 40 px par seconde), quelle que soit la longueur.
+    track.style.setProperty('--marquee-dur', Math.max(20, set.scrollWidth / 40) + 's');
+  });
+})();
