@@ -266,3 +266,10 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 .logo-item:hover .logo-name{opacity:1;transform:translate(-50%,0)}
 .logo-item img{transition:transform .2s}
 .logo-item:hover img{transform:translateY(-3px)}
+
+/* Aberration chromatique au survol (filtre #chroma injecté par main.js) */
+.logo-item:hover img,
+.explore-card:hover .thumb,
+.explore-card:hover .explore-asset svg{filter:url(#chroma)}
+.explore-card:hover .explore-title{text-shadow:-3px 0 rgba(255,40,80,.75),3px 0 rgba(0,210,255,.75)}
+@media (prefers-reduced-motion:reduce){.explore-card:hover .thumb,.explore-card:hover .explore-asset svg,.logo-item:hover img{filter:none}}

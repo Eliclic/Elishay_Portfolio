@@ -127,3 +127,24 @@
     track.style.setProperty('--marquee-dur', Math.max(20, set.scrollWidth / 40) + 's');
   });
 })();
+
+// Aberration chromatique au survol : filtre SVG qui décale les canaux rouge et bleu.
+(function () {
+  var ns = 'http://www.w3.org/2000/svg';
+  var svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width', '0');
+  svg.setAttribute('height', '0');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.style.position = 'absolute';
+  svg.innerHTML =
+    '<filter id="chroma" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">' +
+    '<feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>' +
+    '<feOffset in="r" dx="-3" dy="0" result="r2"><animate attributeName="dx" values="-3;-5;-2;-4;-3" dur=".7s" repeatCount="indefinite"/></feOffset>' +
+    '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>' +
+    '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>' +
+    '<feOffset in="b" dx="3" dy="0" result="b2"><animate attributeName="dx" values="3;5;2;4;3" dur=".7s" repeatCount="indefinite"/></feOffset>' +
+    '<feBlend in="r2" in2="g" mode="screen" result="rg"/>' +
+    '<feBlend in="rg" in2="b2" mode="screen"/>' +
+    '</filter>';
+  document.body.appendChild(svg);
+})();
