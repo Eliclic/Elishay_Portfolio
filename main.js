@@ -128,29 +128,54 @@
   });
 })();
 
-// Accueil : effet « sur place ». Les rubriques Explorer sont collantes (CSS sticky) ;
-// quand la suivante arrive par-dessus, la précédente recule et s'assombrit légèrement.
+// Accueil : effet « sur place ». Tous les panneaux restent collés à l'écran (CSS sticky) ;
+// quand le suivant monte par-dessus, celui de dessous se floute, recule et disparaît en fondu.
 (function () {
-  var cards = Array.prototype.slice.call(document.querySelectorAll('.explore .explore-card'));
-  if (!cards.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  cards.forEach(function (c, i) { c.style.setProperty('--i', i); });
+  if (!document.querySelector('.explore')) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var panels = [document.getElementById('top'), document.getElementById('competences'),
+    document.querySelector('#explorer .section-head')]
+    .concat(Array.prototype.slice.call(document.querySelectorAll('.explore .explore-card')))
+    .concat([document.getElementById('contact')])
+    .filter(Boolean);
+  document.documentElement.classList.add('stacking');
+  panels.forEach(function (p) { p.classList.add('stack-panel'); });
+
   var ticking = false;
+  function layout() {
+    var vh = window.innerHeight;
+    // Un panneau plus haut que l'écran se colle quand son bas atteint le bas de l'écran.
+    panels.forEach(function (p) { p.style.setProperty('--stick', Math.min(0, vh - p.offsetHeight) + 'px'); });
+    update();
+  }
   function update() {
     ticking = false;
-    cards.forEach(function (card, i) {
-      var next = cards[i + 1];
-      if (!next) return;
-      var top = card.getBoundingClientRect().top;
-      var gap = next.getBoundingClientRect().top - top;
-      var h = card.offsetHeight;
-      // 0 quand la carte suivante est encore loin, 1 quand elle recouvre entièrement celle-ci.
-      var p = Math.min(1, Math.max(0, 1 - gap / h));
-      card.style.setProperty('--s', (1 - p * 0.06).toFixed(4));
-      card.style.setProperty('--dim', (p * 0.35).toFixed(3));
+    var vh = window.innerHeight;
+    panels.forEach(function (p, i) {
+      var next = panels[i + 1];
+      var t = 0;
+      if (next) {
+        // Part du panneau recouverte par le suivant : 0 = pas encore touché, 1 = entièrement recouvert.
+        var h = p.offsetHeight;
+        var stick = Math.min(0, vh - h);
+        // Le fondu se termine un peu avant le recouvrement complet, pour ne laisser aucun reste visible.
+        t = Math.min(1, Math.max(0, 1.3 * (stick + h - next.getBoundingClientRect().top) / Math.min(h, vh)));
+      }
+      if (t <= 0) {
+        p.style.opacity = '';
+        p.style.filter = '';
+        p.style.transform = '';
+      } else {
+        p.style.opacity = (1 - t).toFixed(3);
+        p.style.filter = 'blur(' + (t * 14).toFixed(1) + 'px)';
+        p.style.transform = 'scale(' + (1 - t * 0.05).toFixed(4) + ')';
+      }
+      p.style.visibility = t >= 1 ? 'hidden' : '';
     });
   }
   function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll);
-  update();
+  window.addEventListener('resize', layout);
+  window.addEventListener('load', layout);
+  layout();
 })();

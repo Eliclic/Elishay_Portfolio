@@ -270,10 +270,13 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 /* Aberration chromatique sur les titres des rubriques de l'accueil */
 .explore-card .explore-title{text-shadow:-3.5px 0 rgba(255,40,80,.75),3.5px 0 rgba(0,210,255,.75)}
 
-/* Accueil : les rubriques restent sur place au scroll, chaque carte se pose sur la précédente */
-.explore{gap:0;padding-bottom:24px}
-.explore .explore-card{position:sticky;top:calc(24px + var(--i,0) * 18px);margin-bottom:28vh;transform-origin:50% 0;transform:scale(var(--s,1));transition:border-color .2s;box-shadow:0 -18px 40px -24px rgba(0,0,0,.45)}
-.explore .explore-card:last-child{margin-bottom:0}
-.explore .explore-card:hover{transform:scale(var(--s,1))}
-.explore .explore-card::after{content:"";position:absolute;inset:0;background:#000;opacity:var(--dim,0);pointer-events:none;z-index:2}
-@media (prefers-reduced-motion:reduce){.explore .explore-card{position:relative;top:auto;margin-bottom:16px;transform:none}}
+/* Accueil : effet « sur place ». Chaque panneau reste collé à l'écran ; le suivant vient
+   par-dessus et celui qui passe en arrière-plan se floute puis disparaît en fondu (main.js). */
+.stack-panel{position:sticky;top:var(--stick,0px);background:var(--bg);will-change:opacity,filter,transform}
+/* La section Explorer et sa liste s'effacent de la mise en page pour que toutes les cartes
+   partagent le même conteneur que les autres panneaux et restent collées jusqu'au bout. */
+.stacking #explorer,.stacking .explore{display:contents}
+.stacking #explorer .section-head{margin-top:clamp(80px,10vw,128px);padding-bottom:32px}
+.explore .explore-card.stack-panel{background:var(--dark);margin-bottom:20vh}
+.explore .explore-card.stack-panel:last-child{margin-bottom:0}
+.explore .explore-card.stack-panel:hover{transform:none}
