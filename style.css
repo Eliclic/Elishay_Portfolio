@@ -267,8 +267,6 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 .logo-item img{transition:transform .2s}
 .logo-item:hover img{transform:translateY(-3px)}
 
-/* Aberration chromatique : légère en permanence, plus forte et animée au survol (filtres injectés par main.js) */
+/* Aberration chromatique permanente (filtre #chroma injecté par main.js) */
 .logo-item img,.explore-card .thumb,.explore-card .explore-asset svg{filter:url(#chroma)}
-.explore-card .explore-title{text-shadow:-1.5px 0 rgba(255,40,80,.6),1.5px 0 rgba(0,210,255,.6)}
-.logo-item:hover img,.explore-card:hover .thumb,.explore-card:hover .explore-asset svg{filter:url(#chroma-live)}
-.explore-card:hover .explore-title{text-shadow:-3px 0 rgba(255,40,80,.75),3px 0 rgba(0,210,255,.75)}
+.explore-card .explore-title{text-shadow:-3.5px 0 rgba(255,40,80,.75),3.5px 0 rgba(0,210,255,.75)}

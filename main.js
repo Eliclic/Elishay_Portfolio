@@ -128,7 +128,7 @@
   });
 })();
 
-// Aberration chromatique au survol : filtre SVG qui décale les canaux rouge et bleu.
+// Aberration chromatique permanente : filtre SVG qui décale les canaux rouge et bleu.
 (function () {
   var ns = 'http://www.w3.org/2000/svg';
   var svg = document.createElementNS(ns, 'svg');
@@ -136,7 +136,7 @@
   svg.setAttribute('height', '0');
   svg.setAttribute('aria-hidden', 'true');
   svg.style.position = 'absolute';
-  // #chroma : décalage léger, toujours visible. #chroma-live : plus fort et animé, au survol.
+  // #chroma : décalage des canaux, toujours visible.
   function filter(id, dx, animated) {
     function off(src, sign) {
       var anim = animated ? '<animate attributeName="dx" values="' +
@@ -150,6 +150,6 @@
       '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>' + off('b', 1) +
       '<feBlend in="r2" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="b2" mode="screen"/></filter>';
   }
-  svg.innerHTML = filter('chroma', 1.5, false) + filter('chroma-live', 3, true);
+  svg.innerHTML = filter('chroma', 3.5, false);
   document.body.appendChild(svg);
 })();
