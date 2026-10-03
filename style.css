@@ -138,6 +138,7 @@ img{max-width:100%}
 @supports (animation-timeline:view()){
   .reveal{animation:reveal linear both;animation-timeline:view();animation-range:entry 10% cover 30%}
   .wipe-in{transform-origin:left;animation:wipe linear both;animation-timeline:view();animation-range:entry 0% cover 25%}
+  .wipe-in.static{animation:none}
   .mask-scroll>span{display:inline-block;animation:lineUp linear both;animation-timeline:view();animation-range:entry 20% cover 35%}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
