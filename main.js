@@ -57,10 +57,15 @@
   var closeBtn = modal.querySelector('.player-close');
   var lastFocus = null;
 
-  function open(id) {
+  function open(id, linkedin) {
     lastFocus = document.activeElement;
-    frame.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) +
-      '?autoplay=1&rel=0&modestbranding=1" title="Vidéo" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+    // Post LinkedIn : on affiche le post intégré (avec sa vidéo), dans un cadre au format du post.
+    frame.classList.toggle('is-post', !!linkedin);
+    frame.innerHTML = linkedin
+      ? '<iframe src="https://www.linkedin.com/embed/feed/update/urn:li:activity:' + encodeURIComponent(linkedin) +
+        '" title="Post LinkedIn" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>'
+      : '<iframe src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) +
+        '?autoplay=1&rel=0&modestbranding=1" title="Vidéo" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
     modal.hidden = false;
     document.documentElement.classList.add('player-open');
     closeBtn.focus();
@@ -75,10 +80,11 @@
   document.addEventListener('click', function (e) {
     var link = e.target.closest('a');
     if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    var linkedin = link.getAttribute('data-li');
     var id = videoId(link);
-    if (!id || link.closest('.explore, .no-player')) return;
+    if (!(id || linkedin) || link.closest('.explore, .no-player')) return;
     e.preventDefault();
-    open(id);
+    open(id, linkedin);
   });
   closeBtn.addEventListener('click', close);
   modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
