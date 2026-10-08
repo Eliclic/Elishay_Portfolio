@@ -413,3 +413,12 @@ a:hover{color:#fff}
 
 /* Aberration chromatique « optique » : franges fines et diffuses, comme en bord d'objectif */
 .explore-card .explore-title{color:#f5f5f7;text-shadow:-1.6px 0 2.5px rgba(255,64,105,.55),1.6px 0 2.5px rgba(64,196,255,.55),0 0 24px rgba(255,255,255,.08)}
+
+@font-face{font-family:'Anton';src:url('assets/fonts/anton.woff2') format('woff2');font-weight:400;font-display:swap}
+/* Titre principal de l'accueil façon affiche « Bleach » : capitales condensées, inclinées,
+   remplissage presque noir #1A0300 et double contour rouge #FF2200. */
+.hero h1{font-family:'Anton',Impact,'Arial Narrow Bold',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:.01em;line-height:.92;font-size:clamp(56px,10.5vw,156px);transform:skewX(-8deg)}
+.hero h1 .mask{overflow:visible;padding:.04em .1em .06em}
+.hero h1 .mask>span{background:none;color:#1A0300;-webkit-text-fill-color:#1A0300;-webkit-text-stroke:3px #FF2200;paint-order:stroke fill;text-shadow:5px 5px 0 #1A0300,7px 7px 0 #FF2200,0 0 48px rgba(255,34,0,.4)}
+.hero h1 .d2{font-weight:400;font-size:.62em;letter-spacing:.08em}
+.hero h1 .pop.accent{color:#FF2200;-webkit-text-fill-color:#FF2200;-webkit-text-stroke:0}
