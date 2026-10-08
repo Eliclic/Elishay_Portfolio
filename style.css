@@ -404,3 +404,12 @@ a:hover{color:#fff}
 /* Logos : bulle de nom */
 .logo-name{border-radius:980px;padding:5px 10px;letter-spacing:.02em;text-transform:none;font-size:12px}
 @media (max-width:700px){.topbar{position:relative}}
+
+/* Visuels des cartes : fenêtres façon macOS posées sur un halo, sans cadre en plus */
+.explore-asset,.explore .explore-asset{padding:0;background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;transition:transform .7s var(--ease)}
+.explore-asset::before{content:"";position:absolute;inset:12% 8%;z-index:-1;border-radius:50%;background:radial-gradient(closest-side,rgba(201,217,143,.22),transparent);filter:blur(28px)}
+.explore-asset svg{max-height:240px;filter:drop-shadow(0 30px 40px rgba(0,0,0,.85))}
+.explore-card:hover .explore-asset{transform:translateY(-6px) scale(1.01);box-shadow:none}
+
+/* Aberration chromatique « optique » : franges fines et diffuses, comme en bord d'objectif */
+.explore-card .explore-title{color:#f5f5f7;text-shadow:-1.6px 0 2.5px rgba(255,64,105,.55),1.6px 0 2.5px rgba(64,196,255,.55),0 0 24px rgba(255,255,255,.08)}
