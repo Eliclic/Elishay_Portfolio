@@ -414,13 +414,13 @@ a:hover{color:#fff}
 /* Aberration chromatique « optique » : franges fines et diffuses, comme en bord d'objectif */
 .explore-card .explore-title{color:#f5f5f7;text-shadow:-1.6px 0 2.5px rgba(255,64,105,.55),1.6px 0 2.5px rgba(64,196,255,.55),0 0 24px rgba(255,255,255,.08)}
 
-@font-face{font-family:'Dela Gothic One';src:url('assets/fonts/dela-gothic-one.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Sansita';src:url('assets/fonts/sansita-900-italic.woff2') format('woff2');font-weight:900;font-style:italic;font-display:swap}
 /* Titre principal de l'accueil : même police et même mise en page que le reste du site.
    Le nom est en contour rouge #FF2200 sur #1A0300 avec un halo ; le métier garde le dégradé blanc. */
 .hero h1 .mask>.d1{color:#1A0300;-webkit-text-fill-color:#1A0300;background:none;-webkit-text-stroke:1.5px #FF2200;paint-order:stroke fill}
 .hero h1 .mask:first-child{filter:drop-shadow(0 0 16px rgba(255,34,0,.55)) drop-shadow(0 0 48px rgba(255,34,0,.3))}
 .hero h1 .mask>.d2{font-size:.6em;font-weight:600;letter-spacing:-.03em}
 .hero h1 .pop.accent{color:#FF2200;-webkit-text-fill-color:#FF2200}
-/* Prénom et nom : capitales larges et massives aux bords ébréchés, comme le logo de Bleach : Thousand-Year Blood War
-   (filtre SVG #rough défini dans index.html). */
-.hero h1 .mask>.d1{font-family:'Dela Gothic One',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:-.02em;font-size:.72em;filter:url(#rough)}
+/* Prénom et nom : graisse noire, italique à lames tranchantes, élargie (modèle envoyé par Elishay). */
+.hero h1 .mask>.d1{font-family:'Sansita',sans-serif;font-weight:900;font-style:italic;letter-spacing:-.01em;font-size:.95em;transform-origin:center}
+.hero h1 .mask:first-child{transform:scaleX(1.12)}
