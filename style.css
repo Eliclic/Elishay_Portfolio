@@ -414,13 +414,20 @@ a:hover{color:#fff}
 /* Aberration chromatique « optique » : franges fines et diffuses, comme en bord d'objectif */
 .explore-card .explore-title{color:#f5f5f7;text-shadow:-1.6px 0 2.5px rgba(255,64,105,.55),1.6px 0 2.5px rgba(64,196,255,.55),0 0 24px rgba(255,255,255,.08)}
 
-@font-face{font-family:'Sansita';src:url('assets/fonts/sansita-900-italic.woff2') format('woff2');font-weight:900;font-style:italic;font-display:swap}
-/* Titre principal de l'accueil : même police et même mise en page que le reste du site.
-   Le nom est en contour rouge #FF2200 sur #1A0300 avec un halo ; le métier garde le dégradé blanc. */
-.hero h1 .mask>.d1{color:#1A0300;-webkit-text-fill-color:#1A0300;background:none;-webkit-text-stroke:1.5px #FF2200;paint-order:stroke fill}
-.hero h1 .mask:first-child{filter:drop-shadow(0 0 16px rgba(255,34,0,.55)) drop-shadow(0 0 48px rgba(255,34,0,.3))}
-.hero h1 .mask>.d2{font-size:.6em;font-weight:600;letter-spacing:-.03em}
-.hero h1 .pop.accent{color:#FF2200;-webkit-text-fill-color:#FF2200}
-/* Prénom et nom : graisse noire, italique à lames tranchantes, élargie (modèle envoyé par Elishay). */
-.hero h1 .mask>.d1{font-family:'Sansita',sans-serif;font-weight:900;font-style:italic;letter-spacing:-.01em;font-size:.95em;transform-origin:center}
-.hero h1 .mask:first-child{transform:scaleX(1.12)}
+@font-face{font-family:'Archivo Black';src:url('assets/fonts/archivo-black.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Permanent Marker';src:url('assets/fonts/permanent-marker.woff2') format('woff2');font-weight:400;font-display:swap}
+
+/* Ambiance « générique d'anime » : noir profond, grain de pellicule, vignettage et fumée.
+   Titre de l'accueil blanc, massif et usé, sous-titre au pinceau. */
+body::before{content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.09;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain .9s steps(6) infinite}
+body::after{content:"";position:fixed;inset:0;z-index:59;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(0,0,0,.65) 100%)}
+@keyframes grain{0%{background-position:0 0}20%{background-position:-37px 21px}40%{background-position:29px -43px}60%{background-position:-17px -11px}80%{background-position:41px 33px}100%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){body::before{animation:none}}
+.hero{position:relative;isolation:isolate}
+.hero::before{content:"";position:absolute;inset:-10% 0;z-index:-1;pointer-events:none;background:radial-gradient(45% 40% at 50% 45%,rgba(255,255,255,.07),transparent 70%),radial-gradient(30% 25% at 30% 30%,rgba(255,255,255,.04),transparent 70%),radial-gradient(35% 30% at 72% 62%,rgba(255,255,255,.035),transparent 70%);filter:blur(10px)}
+
+.hero h1 .mask>.d1{font-family:'Archivo Black',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:-.035em;font-size:.86em;color:#f2f2f2;-webkit-text-fill-color:#f2f2f2;background:none;-webkit-text-stroke:0;filter:url(#rough)}
+.hero h1 .mask:first-child{filter:drop-shadow(0 0 22px rgba(255,255,255,.12))}
+.hero h1 .mask>.d2{font-family:'Permanent Marker',cursive;font-weight:400;font-size:.36em;letter-spacing:.04em;background:none;color:#d9d9d9;-webkit-text-fill-color:#d9d9d9;transform:rotate(-2deg)}
+.hero h1 .pop.accent{color:#d9d9d9;-webkit-text-fill-color:#d9d9d9}
+.hero h1 .mask:nth-child(2){margin-top:-.45em}
