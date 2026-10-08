@@ -283,3 +283,124 @@ h1,h2,.card-title,.explore-title,.grade-title,.lead,.logo{font-family:var(--disp
 .explore .explore-card.stack-panel{background:var(--dark);margin-bottom:20vh}
 .explore .explore-card.stack-panel:last-child{margin-bottom:0}
 .explore .explore-card.stack-panel:hover{transform:none}
+
+/* ==========================================================================
+   Direction artistique « premium » inspirée des pages produit Apple :
+   fond noir, typographie système serrée, titres centrés en dégradé,
+   cartes très arrondies, boutons pilule, barre de navigation givrée.
+   ========================================================================== */
+:root{
+  --display:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter','Helvetica Neue',sans-serif;
+  --sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter','Helvetica Neue',sans-serif;
+  --mono:var(--sans);
+  --bg:#000;
+  --surface:#161617;
+  --tile:#1d1d1f;
+  --line:rgba(255,255,255,.1);
+  --line-strong:rgba(255,255,255,.28);
+  --ink:#f5f5f7;
+  --text:#f5f5f7;
+  --body:#a1a1a6;
+  --muted:#86868b;
+  --accent:#b5c77f;
+  --dark:#1d1d1f;
+  --radius:28px;
+  --ease:cubic-bezier(.25,.1,.25,1);
+}
+body{font-family:var(--sans);letter-spacing:-.01em}
+::selection{background:rgba(181,199,127,.35)}
+a:hover{color:#fff}
+.heavy{font-weight:700}
+.mono{font-family:var(--sans);letter-spacing:.04em}
+
+/* Barre de navigation givrée, collée en haut */
+.topbar{position:sticky;top:0;z-index:50;padding:14px 0;border-bottom:0;gap:12px 32px}
+.topbar::before{content:"";position:absolute;inset:0 50%;width:100vw;transform:translateX(-50%);z-index:-1;background:rgba(0,0,0,.72);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+.logo{width:auto;height:auto;border:0;font-size:22px;font-weight:600;letter-spacing:-.04em}
+.nav{gap:6px 28px;font-size:12px;letter-spacing:0;text-transform:none}
+.nav a{color:rgba(245,245,247,.8);padding:8px 0;transition:color .3s var(--ease)}
+.nav a:hover,.nav a.active{color:#fff}
+.nav a.active::after{display:none}
+
+/* Héros centrés */
+.hero,.page-hero{align-items:center;text-align:center}
+.hero{gap:40px;padding:clamp(96px,14vw,180px) 0 clamp(64px,8vw,104px)}
+.page-hero{gap:28px;padding:clamp(80px,11vw,150px) 0 clamp(24px,3vw,40px)}
+.hero>.meta,.page-hero>.meta,.rule{display:none}
+.hero h1,.page-hero h1,.contact h2{font-weight:600;letter-spacing:-.045em;line-height:1.02}
+.hero h1 .mask>span,.page-hero h1 .mask>span,.contact h2 .mask>span{background:linear-gradient(180deg,#fff 35%,#9a9aa0 120%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.hero h1 .accent,.page-hero h1 .accent,.contact h2 .accent{color:var(--accent);-webkit-text-fill-color:var(--accent)}
+.hero h1{font-size:clamp(48px,9vw,128px)}
+.page-hero h1{font-size:clamp(48px,8.5vw,120px)}
+.mask{padding:.08em .08em .16em}
+.hero-foot,.hero-cta{align-items:center}
+.hero-tags{align-items:center;font-size:17px;letter-spacing:0;color:var(--body)}
+.hero-tags span:first-child{font-size:13px;font-weight:600;letter-spacing:.08em;color:var(--accent)}
+.page-intro{flex-direction:column;align-items:center;gap:20px;justify-content:center}
+.page-intro .bio{font-size:clamp(19px,1.8vw,24px);line-height:1.45;color:var(--body);font-weight:500;letter-spacing:-.015em}
+.page-intro .hero-tags{font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--accent)}
+.buttons{justify-content:center;gap:14px}
+
+/* Boutons pilule */
+.btn{min-height:44px;padding:0 22px;border-radius:980px;font-size:15px;font-weight:500;letter-spacing:-.01em;transition:transform .3s var(--ease),background .3s var(--ease),color .3s var(--ease),border-color .3s var(--ease)}
+.btn-lg{min-height:52px;padding:0 28px;font-size:17px}
+.btn-fill{background:#f5f5f7;color:#000}
+.btn-fill:hover{background:#fff;color:#000;transform:scale(1.03)}
+.btn-line{border:1px solid var(--line-strong);color:var(--ink)}
+.btn-line:hover{border-color:#fff;color:#fff}
+.btn svg *{stroke:currentColor}
+.btn svg circle[fill]{fill:currentColor}
+
+/* Titres de section centrés, sans filet ni compteur */
+.section-head{justify-content:center;text-align:center;padding-top:0}
+.section-head .wipe-in,.section-head>.mono{display:none}
+.section-head h2{font-weight:600;font-size:clamp(36px,5vw,64px);letter-spacing:-.04em}
+.reveal{animation:none!important}
+
+/* Cartes et tuiles */
+.card{border:0;border-radius:var(--radius);background:var(--tile);transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
+.card:hover{transform:scale(1.015);box-shadow:0 30px 60px -30px rgba(0,0,0,.9)}
+.card-meta{font-size:12px;font-weight:600;letter-spacing:.06em}
+.card-sub{color:var(--body);font-size:15px}
+.card-title,.explore-title,.grade-title{font-weight:600;letter-spacing:-.035em}
+.project{padding:32px}
+.project.has-thumb,.card.has-thumb,.card.dark,.project.dark{border:0}
+.project.has-thumb:hover,.card.has-thumb:hover,.card.dark:hover{border:0}
+.skill-box{border-radius:var(--radius);background:var(--tile);padding:36px}
+.skill-box .label{font-size:12px;font-weight:600;letter-spacing:.08em}
+.vfx-empty,.project.service{border:0;background:var(--tile)}
+.explore{gap:24px}
+.explore-asset{border-radius:20px;border-color:rgba(255,255,255,.08)}
+.explore .explore-card.stack-panel{background:var(--tile)}
+
+/* Étalonnage, VFX : grandes lignes de films */
+.grade,.grade:last-child{border:0;padding:28px 0}
+.grade-media{border-radius:22px}
+.grade-play{border-radius:50%;border:0;background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.grade-meta,.stat-label{font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--muted)}
+.grade:hover .grade-title{color:#fff}
+.tech-list li,.tech-list li:last-child{border-color:var(--line)}
+
+/* Stage & freelance */
+.mission{border-top:1px solid var(--line);padding:40px 0}
+.mission-idx{color:var(--muted)}
+.mission-media,.reel{border-radius:22px}
+.mission-body h3 a:hover{color:#fff}
+.stat-num{font-family:var(--display);font-weight:600;background:linear-gradient(180deg,#fff,#a1a1a6);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Contact et pied de page */
+.contact{align-items:center;text-align:center}
+.contact-meta{border-top:0;padding-top:0;font-size:12px;font-weight:600;letter-spacing:.08em}
+.contact h2{font-size:clamp(48px,8vw,112px)}
+.footer{font-size:12px;letter-spacing:0;color:#6e6e73}
+.back-link{font-size:14px;letter-spacing:0}
+
+/* Lecteur */
+.player{background:rgba(0,0,0,.8);-webkit-backdrop-filter:blur(30px) saturate(150%);backdrop-filter:blur(30px) saturate(150%)}
+.player-bar{color:var(--muted);letter-spacing:.04em}
+.player-close{border-radius:980px;color:#f5f5f7;border-color:var(--line-strong)}
+.player-frame{border-radius:20px;overflow:hidden;box-shadow:0 40px 120px -20px rgba(0,0,0,.9)}
+
+/* Logos : bulle de nom */
+.logo-name{border-radius:980px;padding:5px 10px;letter-spacing:.02em;text-transform:none;font-size:12px}
+@media (max-width:700px){.topbar{position:relative}}
