@@ -582,32 +582,3 @@ a:hover{color:#fff}
 
 /* Bordure gris sombre autour de chaque vidéo */
 .card.has-thumb,.project.has-thumb,.card.has-thumb:hover,.project.has-thumb:hover,.grade-media,.mission-media,.reel,.instagram-media.reel{border:1.5px solid #3a3a3e!important;box-sizing:border-box}
-
-/* Accueil : défilement horizontal, une section par écran */
-.home{overflow:hidden}
-.home .page{height:100vh;height:100dvh;overflow:hidden}
-.home .topbar{position:relative;flex:none}
-.hscroll{--gut:max(clamp(16px,5vw,64px),calc((100vw - 1280px) / 2 + clamp(16px,5vw,64px)));flex:1;min-height:0;width:100vw;margin-left:calc(50% - 50vw);display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;outline:none}
-.hscroll::-webkit-scrollbar{display:none}
-.hscroll #explorer,.hscroll .explore{display:contents}
-.hscroll>section,.hscroll>.hpanel-end,.hscroll #explorer>.section-head,.hscroll .explore-card{flex:0 0 100vw;width:100vw;height:100%;box-sizing:border-box;scroll-snap-align:start;scroll-snap-stop:always;overflow-y:auto;overflow-x:hidden;margin:0;padding:24px var(--gut) 96px;display:flex;flex-direction:column;justify-content:center}
-.hscroll>section.hero,.hscroll>section.section{gap:clamp(24px,4vh,48px)}
-.hscroll #explorer>.section-head{flex-basis:clamp(320px,45vw,640px);width:auto;align-items:center;justify-content:center;flex-direction:column}
-.hscroll #explorer>.section-head h2{font-size:clamp(56px,9vw,140px)}
-.hscroll #explorer>.section-head::after{content:"→";font-size:clamp(28px,3vw,44px);color:var(--accent);margin-top:8px}
-.hscroll .explore-card{flex-basis:calc(100vw - 2 * var(--gut));width:auto;height:calc(100% - 120px);margin:24px var(--gut) 96px;padding:clamp(24px,4vw,56px);scroll-snap-align:center;justify-content:normal;min-height:0;overflow:hidden}
-.hscroll>.hpanel-end{justify-content:space-between}
-.hscroll>.hpanel-end .contact{flex:1;display:flex;flex-direction:column;justify-content:center;margin:0;padding:0}
-.home .mask-scroll>span{animation:none!important}
-.hnav{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:14px;padding:8px 10px;border-radius:999px;background:rgba(28,28,30,.6);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
-.hnav-btn{width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#f5f5f7;font-size:18px;cursor:pointer;transition:background .2s,opacity .2s}
-.hnav-btn:hover{background:rgba(255,255,255,.2)}
-.hnav-btn:disabled{opacity:.3;cursor:default}
-.hnav-dots{display:flex;gap:8px}
-.hnav-dots button{width:8px;height:8px;padding:0;border:0;border-radius:999px;background:rgba(255,255,255,.3);cursor:pointer;transition:width .3s,background .3s}
-.hnav-dots button[aria-current="true"]{width:24px;background:var(--accent)}
-@media (max-width:760px){.hscroll>section,.hscroll>.hpanel-end,.hscroll #explorer>.section-head{padding:16px var(--gut) 88px;justify-content:flex-start}.hscroll>section.hero{justify-content:center}.hscroll #explorer>.section-head{flex-basis:100vw;justify-content:center}.hscroll .explore-card{height:calc(100% - 104px);margin:16px var(--gut) 88px}.hnav{bottom:14px}}
-.hscroll .explore-card{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:center;gap:clamp(24px,4vw,64px)}
-.hscroll .explore-card .explore-text{align-self:stretch;display:flex;flex-direction:column;justify-content:space-between}
-.hscroll .explore-card .explore-asset svg{max-height:min(46vh,360px)}
-@media (max-width:760px){.hscroll .explore-card{grid-template-columns:1fr;grid-template-rows:auto 1fr;align-items:stretch}.hscroll .explore-card .explore-asset{order:-1}.hscroll .explore-card .explore-asset svg{max-height:28vh}}
