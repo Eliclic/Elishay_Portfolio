@@ -424,3 +424,4 @@ a:hover{color:#fff}
 .hero h1 .mask>span,.page-hero h1 .mask>span,.contact h2 .mask>span{padding:.04em .06em .2em 0;margin-bottom:-.2em}
 .hero h1 .mask,.page-hero h1 .mask{padding-bottom:.24em;margin-bottom:-.18em}
 .hero h1 .pop.accent,.page-hero h1 .pop.accent{display:inline-block;width:.17em;height:.17em;margin-left:.05em;border-radius:50%;background:var(--accent);color:transparent;-webkit-text-fill-color:transparent;text-shadow:none;box-shadow:0 0 14px rgba(212,185,140,.45),0 0 32px rgba(212,185,140,.2);font-size:inherit;line-height:0;overflow:hidden;vertical-align:baseline}
+.hero h1 .pop.accent,.page-hero h1 .pop.accent{display:none}
