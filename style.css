@@ -430,6 +430,7 @@ a:hover{color:#fff}
 .grade-desc{margin:0;font-size:16px;line-height:1.5;color:var(--muted)}
 .grade-tools{display:flex;gap:10px}
 .grade-tools img{width:32px;height:32px;border-radius:8px}
-.grade-skills{display:flex;flex-wrap:wrap;gap:8px}
-.grade-skills span{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:500;color:#ece4d6;background:rgba(212,185,140,.1);border:1px solid rgba(212,185,140,.28)}
+.grade-skills{display:flex;flex-direction:column;gap:6px}
+.grade-skills span{font-size:15px;font-weight:500;color:#ece4d6}
+.grade-skills span::before{content:"•";color:var(--accent);margin-right:10px;text-shadow:var(--glow)}
 .vfx-layout{grid-template-columns:minmax(0,1fr)}.vfx-layout>.skill-box{min-width:0;max-width:100%}
