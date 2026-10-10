@@ -579,3 +579,6 @@ a:hover{color:#fff}
     radial-gradient(clamp(18px,2vw,30px) clamp(10px,1.2vw,16px) at calc(100% - clamp(28px,3.6vw,60px) - (var(--gx) + 1) * 8%) calc(100% - clamp(20px,2.4vw,36px) - (var(--gy) + 1) * 12%),rgba(255,255,255,.6),transparent 75%),
     radial-gradient(45% 70% at calc(50% - var(--gx) * 45%) calc(30% - var(--gy) * 40%),rgba(255,255,255,.14),transparent 70%),
     linear-gradient(110deg,transparent 30%,rgba(255,255,255,.08) 42%,rgba(255,255,255,.2) 47%,rgba(255,255,255,.08) 52%,transparent 64%) 0 0/250% 100% no-repeat}
+
+/* Bordure gris sombre autour de chaque vidéo */
+.card.has-thumb,.project.has-thumb,.card.has-thumb:hover,.project.has-thumb:hover,.grade-media,.mission-media,.reel,.instagram-media.reel{border:1.5px solid #3a3a3e!important;box-sizing:border-box}
