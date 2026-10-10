@@ -220,3 +220,47 @@
   window.addEventListener('load', layout);
   layout();
 })();
+
+// Reflets du verre des titres : suivent l'inclinaison du téléphone (ou la souris).
+(function () {
+  var glass = document.querySelectorAll('.hero h1, .page-hero h1');
+  if (!glass.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var tx = 0, ty = 0, x = 0, y = 0, running = false;
+  function clamp(v) { return Math.max(-1, Math.min(1, v)); }
+  function tick() {
+    x += (tx - x) * 0.12; y += (ty - y) * 0.12;
+    for (var i = 0; i < glass.length; i++) {
+      glass[i].style.setProperty('--gx', x.toFixed(3));
+      glass[i].style.setProperty('--gy', y.toFixed(3));
+    }
+    if (Math.abs(tx - x) > 0.001 || Math.abs(ty - y) > 0.001) requestAnimationFrame(tick);
+    else running = false;
+  }
+  function set(nx, ny) {
+    tx = clamp(nx); ty = clamp(ny);
+    if (!running) { running = true; requestAnimationFrame(tick); }
+  }
+  var base = null;
+  function onTilt(e) {
+    if (e.beta == null || e.gamma == null) return;
+    if (base === null) base = e.beta;
+    set(e.gamma / 30, (e.beta - base) / 30);
+  }
+  function listen() { window.addEventListener('deviceorientation', onTilt); }
+  var D = window.DeviceOrientationEvent;
+  if (D && typeof D.requestPermission === 'function') {
+    // iPhone : il faut l'accord de l'utilisateur, demandé au premier toucher.
+    var ask = function () {
+      document.removeEventListener('touchend', ask);
+      document.removeEventListener('click', ask);
+      D.requestPermission().then(function (s) { if (s === 'granted') listen(); }).catch(function () {});
+    };
+    document.addEventListener('touchend', ask);
+    document.addEventListener('click', ask);
+  } else if (D) {
+    listen();
+  }
+  window.addEventListener('mousemove', function (e) {
+    set((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1);
+  }, { passive: true });
+})();
