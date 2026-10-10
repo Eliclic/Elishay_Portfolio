@@ -434,3 +434,5 @@ a:hover{color:#fff}
 .grade-skills span{font-size:15px;font-weight:500;color:#ece4d6}
 .grade-skills span::before{content:"•";color:var(--accent);margin-right:10px;text-shadow:var(--glow)}
 .vfx-layout{grid-template-columns:minmax(0,1fr)}.vfx-layout>.skill-box{min-width:0;max-width:100%}
+.mission{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}@media (max-width:860px){.mission{grid-template-columns:1fr}}
+.reel-fallback .reel-play{margin:auto}
