@@ -10,9 +10,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202610101442">
+<link rel="stylesheet" href="style.css?v=202610101655">
 </head>
-<body>
+<body class="home">
 <div class="page">
 
 <header class="topbar">
@@ -27,6 +27,7 @@
   </nav>
 </header>
 
+<main class="hscroll" id="hscroll" tabindex="-1">
 <section id="top" class="hero">
   <div class="meta mono">
     <span class="track"><span class="rec accent">●</span> EU — PORTFOLIO</span>
@@ -106,6 +107,7 @@
   </div>
 </section>
 
+<div class="hpanel-end">
 <section id="contact" class="contact">
   <div class="meta mono contact-meta">
     <span><span class="rec accent">●</span> CONTACT</span>
@@ -128,8 +130,15 @@
   <span>© 2026 ELISHAY UNGLIK — MONTEUR VIDÉO / VFX</span>
   <span>TC 00:00:59:24 <span class="accent">■</span> FIN</span>
 </footer>
+</div>
+</main>
+<div class="hnav">
+  <button type="button" class="hnav-btn hnav-prev" aria-label="Section précédente">←</button>
+  <div class="hnav-dots"></div>
+  <button type="button" class="hnav-btn hnav-next" aria-label="Section suivante">→</button>
+</div>
 
 </div>
-<script src="main.js?v=202610101442"></script>
+<script src="main.js?v=202610101655"></script>
 </body>
 </html>

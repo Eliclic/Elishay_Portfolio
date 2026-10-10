@@ -137,7 +137,7 @@
 // Accueil : effet « sur place ». Tous les panneaux restent collés à l'écran (CSS sticky) ;
 // quand le suivant monte par-dessus, celui de dessous se floute, recule et disparaît en fondu.
 (function () {
-  if (!document.querySelector('.explore')) return;
+  if (!document.querySelector('.explore') || document.querySelector('.hscroll')) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var panels = [document.getElementById('top'), document.getElementById('competences'),
     document.querySelector('#explorer .section-head')]
@@ -263,4 +263,90 @@
   window.addEventListener('mousemove', function (e) {
     set((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1);
   }, { passive: true });
+})();
+
+// Accueil : défilement horizontal. La molette ou le pavé tactile (vertical) passe à la section
+// suivante ; au doigt on glisse de gauche à droite ; flèches du clavier et boutons en bas.
+(function () {
+  var box = document.querySelector('.hscroll');
+  if (!box) return;
+  var panels = Array.prototype.slice.call(box.querySelectorAll(':scope > section:not(#explorer), :scope > .hpanel-end, #explorer > .section-head, .explore-card'))
+    .sort(function (a, b) { return a.offsetLeft - b.offsetLeft; });
+  var dots = document.querySelector('.hnav-dots');
+  var prev = document.querySelector('.hnav-prev');
+  var next = document.querySelector('.hnav-next');
+  var smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  panels.forEach(function (p, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', 'Section ' + (i + 1));
+    b.addEventListener('click', function () { go(i); });
+    dots.appendChild(b);
+  });
+  function left(p) { return p.offsetLeft - (box.clientWidth - p.offsetWidth) / 2 * (p.classList.contains('explore-card') ? 1 : 0); }
+  function current() {
+    var x = box.scrollLeft, best = 0, d = Infinity;
+    panels.forEach(function (p, i) { var dd = Math.abs(left(p) - x); if (dd < d) { d = dd; best = i; } });
+    return best;
+  }
+  function go(i) {
+    i = Math.max(0, Math.min(panels.length - 1, i));
+    box.scrollTo({ left: left(panels[i]), behavior: smooth ? 'smooth' : 'auto' });
+  }
+  function sync() {
+    var c = current();
+    Array.prototype.forEach.call(dots.children, function (b, i) { b.setAttribute('aria-current', i === c ? 'true' : 'false'); });
+    prev.disabled = c === 0;
+    next.disabled = c === panels.length - 1;
+  }
+  prev.addEventListener('click', function () { go(current() - 1); });
+  next.addEventListener('click', function () { go(current() + 1); });
+  box.addEventListener('scroll', function () { requestAnimationFrame(sync); }, { passive: true });
+
+  // Molette : un cran = une section, sauf si la section elle-même peut encore défiler verticalement.
+  var lock = 0, acc = 0;
+  box.addEventListener('wheel', function (e) {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // geste horizontal natif
+    var inner = e.target.closest('.hscroll > *, .explore-card, #explorer > .section-head');
+    if (inner && inner.scrollHeight > inner.clientHeight + 2) {
+      var atTop = inner.scrollTop <= 0, atEnd = inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 2;
+      if ((e.deltaY < 0 && !atTop) || (e.deltaY > 0 && !atEnd)) return;
+    }
+    e.preventDefault();
+    var now = Date.now();
+    if (now < lock) return;
+    acc += e.deltaY;
+    if (Math.abs(acc) < 25) return;
+    go(current() + (acc > 0 ? 1 : -1));
+    acc = 0;
+    lock = now + 650;
+  }, { passive: false });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.target.closest('input, textarea') || document.documentElement.classList.contains('player-open')) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) { e.preventDefault(); go(current() + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) { e.preventDefault(); go(current() - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); go(0); }
+    else if (e.key === 'End') { e.preventDefault(); go(panels.length - 1); }
+  });
+
+  // Liens vers #contact (et autres ancres de l'accueil) : glissement horizontal.
+  function toHash(hash, instant) {
+    var t = hash && document.getElementById(hash.slice(1));
+    if (!t) return false;
+    var p = t.closest('.hpanel-end') || t;
+    var i = panels.indexOf(p);
+    if (i < 0) return false;
+    if (instant) box.scrollLeft = left(panels[i]); else go(i);
+    return true;
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href*="#"]');
+    if (!a) return;
+    var url = new URL(a.href, location.href);
+    if (url.pathname !== location.pathname) return;
+    if (toHash(url.hash)) { e.preventDefault(); history.replaceState(null, '', url.hash); }
+  });
+  window.addEventListener('load', function () { if (location.hash) toHash(location.hash, true); sync(); });
+  sync();
 })();
