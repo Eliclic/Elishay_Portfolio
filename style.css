@@ -639,3 +639,7 @@ html{overflow-x:clip}
 @keyframes bob{0%,100%{translate:0 0}50%{translate:0 -14px}}
 @media (max-width:760px){.orb{right:-12%;top:8%;width:62vw}.orb-ring{display:none}.film.f2{display:none}.g3{right:4%;top:72%}.g1{left:6%;top:70%}}
 @media (prefers-reduced-motion:reduce){.layer{transform:none!important}}
+/* Android : barre des logiciels plus fine */
+.is-android .icons.marquee{padding:2px 0 22px}
+.is-android .marquee-set{gap:24px;padding-right:24px}
+.is-android .icons.marquee img{width:38px;height:38px;border-radius:9px}

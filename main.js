@@ -1,3 +1,4 @@
+if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add("is-android");
 // Timecode qui défile (25 images/s), comme sur un moniteur de montage.
 (function () {
   var els = document.querySelectorAll('[data-tc]');
