@@ -434,7 +434,3 @@ a:hover{color:#fff}
 .grade-skills span{font-size:15px;font-weight:500;color:#ece4d6}
 .grade-skills span::before{content:"•";color:var(--accent);margin-right:10px;text-shadow:var(--glow)}
 .vfx-layout{grid-template-columns:minmax(0,1fr)}.vfx-layout>.skill-box{min-width:0;max-width:100%}
-
-/* Cartes Explorer sans illustration : la vignette vidéo occupe toute la carte */
-.explore-card{grid-template-columns:1fr;min-height:340px}
-@media (max-width:760px){.explore-card{min-height:240px}}
