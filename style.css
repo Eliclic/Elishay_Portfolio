@@ -441,3 +441,24 @@ a:hover{color:#fff}
 .hero h1,.page-hero h1{position:relative;max-width:100%;box-sizing:border-box;padding:clamp(18px,2.6vw,36px) clamp(22px,4vw,64px);border-radius:clamp(22px,3vw,40px);background:linear-gradient(145deg,rgba(255,255,255,.14) 0%,rgba(200,204,212,.07) 45%,rgba(255,255,255,.03) 100%);border:1px solid rgba(220,224,232,.22);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(255,255,255,.05),0 30px 80px -30px rgba(0,0,0,.9),0 0 60px rgba(200,205,215,.06)}
 .hero h1::before,.page-hero h1::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(120% 80% at 20% 0%,rgba(255,255,255,.12),transparent 55%);mix-blend-mode:screen}
 .hero h1{font-size:clamp(40px,7.4vw,112px)}
+
+/* Liquid glass sur le cadre du titre */
+.hero h1,.page-hero h1{isolation:isolate;border:0;
+  background:
+    radial-gradient(closest-side,rgba(212,185,140,.22),transparent) 0 0/70% 140% no-repeat,
+    radial-gradient(closest-side,rgba(170,185,215,.2),transparent) 100% 100%/60% 130% no-repeat,
+    linear-gradient(160deg,rgba(255,255,255,.13) 0%,rgba(255,255,255,.04) 40%,rgba(255,255,255,.02) 70%,rgba(255,255,255,.08) 100%);
+  -webkit-backdrop-filter:blur(30px) saturate(1.8) brightness(1.1);backdrop-filter:blur(30px) saturate(1.8) brightness(1.1);
+  box-shadow:inset 0 1.5px 1px rgba(255,255,255,.55),inset 0 -1px 1px rgba(255,255,255,.18),inset 14px 0 30px -18px rgba(255,90,150,.22),inset -14px 0 30px -18px rgba(80,200,255,.22),inset 0 0 50px rgba(255,255,255,.05),0 40px 90px -40px rgba(0,0,0,.95),0 0 0 .5px rgba(255,255,255,.12);
+  animation:lgFlow 14s ease-in-out infinite alternate}
+.hero h1 .mask,.page-hero h1 .mask{position:relative;z-index:2}
+.hero h1::before,.page-hero h1::before{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;padding:1.5px;pointer-events:none;mix-blend-mode:normal;
+  background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(255,255,255,.18) 22%,rgba(255,255,255,.04) 50%,rgba(255,255,255,.22) 78%,rgba(255,255,255,.8));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.hero h1::after,.page-hero h1::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.09) 42%,rgba(255,255,255,.22) 47%,rgba(255,255,255,.09) 52%,transparent 64%) 0 0/250% 100% no-repeat,
+             radial-gradient(90% 60% at 50% -10%,rgba(255,255,255,.16),transparent 60%);
+  animation:lgSheen 7s cubic-bezier(.45,0,.2,1) infinite}
+@keyframes lgFlow{0%{background-position:0% 0%,100% 100%,0 0}50%{background-position:60% 80%,20% 10%,0 0}100%{background-position:100% 20%,0% 70%,0 0}}
+@keyframes lgSheen{0%,35%{background-position:130% 0,0 0}75%,100%{background-position:-30% 0,0 0}}
+@media (prefers-reduced-motion:reduce){.hero h1,.page-hero h1,.hero h1::after,.page-hero h1::after{animation:none}}
