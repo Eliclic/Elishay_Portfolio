@@ -233,6 +233,8 @@
       glass[i].style.setProperty('--gx', x.toFixed(3));
       glass[i].style.setProperty('--gy', y.toFixed(3));
     }
+    document.documentElement.style.setProperty('--gx', x.toFixed(3));
+    document.documentElement.style.setProperty('--gy', y.toFixed(3));
     if (Math.abs(tx - x) > 0.001 || Math.abs(ty - y) > 0.001) requestAnimationFrame(tick);
     else running = false;
   }
@@ -263,4 +265,19 @@
   window.addEventListener('mousemove', function (e) {
     set((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1);
   }, { passive: true });
+})();
+
+// Accueil : plan d'ouverture en couches. Chaque couche glisse à sa vitesse au scroll (parallaxe).
+(function () {
+  var scene = document.querySelector('.hero .scene');
+  if (!scene || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var ticking = false;
+  function update() {
+    ticking = false;
+    scene.style.setProperty('--sy', Math.min(window.scrollY, window.innerHeight * 1.5).toFixed(1));
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  update();
 })();
