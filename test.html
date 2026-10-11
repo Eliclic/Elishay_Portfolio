@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.instagram.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://i.ytimg.com https://*.cdninstagram.com https://www.instagram.com; frame-src https://www.youtube-nocookie.com https://www.linkedin.com https://www.instagram.com; connect-src 'self' https://www.instagram.com; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex">
+<title>Test — Elishay Unglik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=202610111741">
+<style>
+  html,body{background:#05060a}
+  body{background:radial-gradient(120% 90% at 70% 55%,#1a1c2e 0%,#0b0c14 45%,#040408 100%) fixed}
+  #cam3d{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+  .cam-vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(80% 70% at 50% 50%,transparent 55%,rgba(0,0,0,.6) 100%)}
+  .cam-frame{position:fixed;inset:88px 24px 24px;z-index:1;pointer-events:none}
+  .cam-frame i{position:absolute;width:18px;height:18px;border-color:rgba(220,226,245,.28);border-style:solid;border-width:0}
+  .cam-frame i:nth-child(1){top:0;left:0;border-top-width:1px;border-left-width:1px}
+  .cam-frame i:nth-child(2){top:0;right:0;border-top-width:1px;border-right-width:1px}
+  .cam-frame i:nth-child(3){bottom:0;left:0;border-bottom-width:1px;border-left-width:1px}
+  .cam-frame i:nth-child(4){bottom:0;right:0;border-bottom-width:1px;border-right-width:1px}
+  .cam-progress{position:fixed;left:0;right:0;top:64px;height:1px;z-index:5;background:rgba(255,255,255,.08)}
+  .cam-progress span{display:block;height:100%;background:linear-gradient(90deg,#9fb0e8,#d4b98c);transform-origin:left;transform:scaleX(0);box-shadow:0 0 10px rgba(212,185,140,.5)}
+  .cam-page .topbar{position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(100% - 32px,1200px);z-index:6}
+  #cam-lines{position:fixed;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+  #cam-lines line{stroke:rgba(225,230,248,.7);stroke-width:1}
+  #cam-labels{position:fixed;inset:0;z-index:3;pointer-events:none}
+  .cam-label{position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:3px;white-space:nowrap;opacity:0}
+  .cam-label.is-left{align-items:flex-end;text-align:right}
+  .cam-label-t{font-size:14px;color:#f3f4f8;letter-spacing:-.01em}
+  .cam-label-s{font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;color:rgba(212,185,140,.85)}
+  .cam-panels{position:fixed;inset:0;z-index:4;pointer-events:none}
+  .cam-panel{position:absolute;top:50%;margin-top:-170px;width:min(420px,40vw);visibility:hidden;opacity:0}
+  .cam-panel.left{left:max(40px,6vw)}
+  .cam-panel.right{right:max(40px,6vw)}
+  .cam-panel.center{left:50%;margin-left:min(-210px,-20vw);text-align:center;top:auto;bottom:12vh;margin-top:0}
+  .cam-panel a,.cam-panel button{pointer-events:auto}
+  .cam-eyebrow{display:flex;align-items:center;gap:12px;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.2em;color:rgba(230,233,245,.55);margin-bottom:22px}
+  .cam-eyebrow b{font-weight:500;color:#d4b98c}
+  .cam-eyebrow i{width:36px;height:1px;background:rgba(230,233,245,.35)}
+  .cam-panel.center .cam-eyebrow{justify-content:center}
+  .cam-panel h2{margin:0 0 18px;font-size:clamp(30px,3.6vw,50px);line-height:1.04;letter-spacing:-.035em;font-weight:500;color:#f5f5f7}
+  .cam-panel h2 em{font-style:normal;color:rgba(245,245,247,.42)}
+  .cam-panel p{margin:0;font-size:15px;line-height:1.6;color:rgba(235,237,245,.68)}
+  .cam-stats{display:flex;gap:34px;margin-top:28px}
+  .cam-stats.center{justify-content:center}
+  .cam-stats div{display:flex;flex-direction:column;gap:8px}
+  .cam-stats strong{font-size:30px;font-weight:400;letter-spacing:-.03em;color:#f5f5f7}
+  .cam-stats span{font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;color:rgba(230,233,245,.45)}
+  .cam-cta{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+  .cam-panel.center .cam-cta{justify-content:center}
+  .cam-spacer{height:600vh}
+  .cam-hint{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:4;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.24em;color:rgba(230,233,245,.45);transition:opacity .4s}
+  @media (max-width:759px){
+    .cam-panel,.cam-panel.left,.cam-panel.right,.cam-panel.center{left:20px;right:20px;width:auto;top:auto;bottom:40px;margin:0;text-align:left}
+    .cam-panel.center .cam-eyebrow,.cam-panel.center .cam-cta,.cam-stats.center{justify-content:flex-start}
+    .cam-panel h2{font-size:30px}
+    .cam-panel p{font-size:14px}
+    .cam-stats{gap:22px;margin-top:18px}
+    .cam-stats strong{font-size:24px}
+    .cam-frame{inset:80px 12px 12px}
+    .cam-label-t{font-size:12px}
+    .cam-hint{display:none}
+  }
+</style>
+</head>
+<body class="cam-page">
+<div class="page">
+<header class="topbar">
+  <a href="index.html" class="logo" aria-label="Accueil">eu<span class="accent">.</span></a>
+  <nav class="nav mono">
+    <a href="index.html">Accueil</a>
+    <a href="projets.html">Montage vidéo</a>
+    <a href="etalonnage.html">Étalonnage</a>
+    <a href="vfx.html">VFX</a>
+    <a href="freelance.html">Stage &amp; freelance</a>
+    <a href="index.html#contact">Contact</a>
+  </nav>
+</header>
+</div>
+
+<div class="cam-progress" aria-hidden="true"><span></span></div>
+<canvas id="cam3d" aria-hidden="true"></canvas>
+<div class="cam-vignette" aria-hidden="true"></div>
+<div class="cam-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<svg id="cam-lines" aria-hidden="true"></svg>
+<div id="cam-labels" aria-hidden="true"></div>
+
+<main class="cam-panels">
+  <section class="cam-panel left">
+    <div class="cam-eyebrow"><b>01</b><i></i>ELISHAY UNGLIK · MONTEUR VIDÉO / VFX</div>
+    <h2>Tout ce que je monte est d'abord <em>passé par le verre.</em></h2>
+    <p>Un plan, une lumière, un capteur. Voici la machine derrière chaque image, démontée pièce par pièce.</p>
+    <div class="cam-cta"><a href="#" class="btn btn-fill" data-next>Démonter ↓</a><a href="projets.html" class="btn btn-line">Voir les projets</a></div>
+  </section>
+  <section class="cam-panel right">
+    <div class="cam-eyebrow"><b>02</b><i></i>DÉMONTAGE</div>
+    <h2>Rien n'est là <em>par hasard.</em></h2>
+    <p>Chaque coupe, chaque raccord, chaque réglage tient sa place. Comme les pièces d'un boîtier, un film tient par ce qu'on ne voit pas.</p>
+    <div class="cam-stats"><div><strong>6</strong><span>FILMS ÉTALONNÉS</span></div><div><strong>3h</strong><span>DE CONCERT</span></div><div><strong>16</strong><span>REELS</span></div></div>
+  </section>
+  <section class="cam-panel left">
+    <div class="cam-eyebrow"><b>03</b><i></i>LE REGARD · MONTAGE</div>
+    <h2>Le montage commence <em>au cadrage.</em></h2>
+    <p>Choisir un plan, c'est choisir ce que l'œil verra. Je monte sur Premiere Pro et DaVinci Resolve : rythme, raccords, titrage et habillage.</p>
+    <div class="cam-stats"><div><strong>12</strong><span>VIDÉOS YOUTUBE</span></div><div><strong>12k</strong><span>VUES</span></div></div>
+  </section>
+  <section class="cam-panel right">
+    <div class="cam-eyebrow"><b>04</b><i></i>LA LUMIÈRE · ÉTALONNAGE</div>
+    <h2>Le capteur garde la lumière. <em>L'étalonnage la révèle.</em></h2>
+    <p>Sur DaVinci Resolve, je raccorde les plans et je construis le look de chaque film, pour que la couleur raconte la même histoire que l'image.</p>
+    <div class="cam-stats"><div><strong>6</strong><span>FILMS</span></div><div><strong>1</strong><span>JOUR PAR FILM</span></div></div>
+  </section>
+  <section class="cam-panel left">
+    <div class="cam-eyebrow"><b>05</b><i></i>LA STRUCTURE · VFX</div>
+    <h2>Ce qu'on ajoute <em>ne doit jamais se voir.</em></h2>
+    <p>Compositing, roto, tracking et motion design sur After Effects, Fusion et Blender : des effets intégrés au point de faire partie du plan.</p>
+  </section>
+  <section class="cam-panel center">
+    <div class="cam-eyebrow"><b>06</b><i></i>LE FILM</div>
+    <h2>Puis tout se referme, <em>et c'est un film.</em></h2>
+    <div class="cam-cta"><a href="projets.html" class="btn btn-fill">Voir les projets</a><a href="index.html#contact" class="btn btn-line">Me contacter</a></div>
+  </section>
+</main>
+<div class="cam-hint" aria-hidden="true">SCROLLEZ POUR DÉMONTER</div>
+<div class="cam-spacer"></div>
+
+<script type="module" src="assets/test.js"></script>
+</body>
+</html>
