@@ -414,9 +414,17 @@ function frameLoop() {
   root.rotation.x = sy * 0.1;
 
   const inEdit = land * (1 - vfx);
-  frame.position.y = lerp(0, 1.35, inEdit) + lerp(0, 0.35, col * (1 - fin)) + (mobile() ? 0 : fin * 1.3);
-  frame.position.x = lerp(0, -1.2, col * (1 - fin));
-  frame.scale.setScalar(1.1 * lerp(1.4, 0.9, inEdit) * lerp(1, 0.66, col * (1 - fin)) * lerp(1, mobile() ? 1.0 : 0.78, fin));
+  const colOn = col * (1 - fin);
+  if (mobile()) {
+    // Sur téléphone, l'image occupe presque toute la largeur de l'écran
+    frame.position.y = 0.8 + lerp(0, 1.2, inEdit) + colOn * 0.9;
+    frame.position.x = 0;
+    frame.scale.setScalar(1.82 * lerp(1, 0.85, colOn) * lerp(1, 0.85, vfx * (1 - col)));
+  } else {
+    frame.position.y = lerp(0, 1.35, inEdit) + lerp(0, 0.35, colOn) + fin * 1.3;
+    frame.position.x = lerp(0, -1.2, colOn);
+    frame.scale.setScalar(1.1 * lerp(1.4, 0.9, inEdit) * lerp(1, 0.66, colOn) * lerp(1, 0.78, fin));
+  }
   frame.rotation.y = lerp(-0.25, 0, land) + lerp(0, 0.75, vfx * (1 - col)) + lerp(0, 0.12, col * (1 - fin));
   frame.rotation.x = lerp(0.08, 0, land) + lerp(0, 0.12, vfx * (1 - col));
   const spread = vfx * (1 - col);
@@ -471,7 +479,8 @@ function frameLoop() {
 
   // Page Color
   fade(color, col * (1 - fin));
-  color.position.set(lerp(3.2, 2.05, col), -0.05, 0);
+  if (mobile()) color.position.set(lerp(3.2, 0, col), -1.6, 0);
+  else color.position.set(lerp(3.2, 2.05, col), -0.05, 0);
   color.rotation.y = lerp(-0.6, -0.15, col);
   wheels.forEach((wh) => wh.puck.position.set(wh.dir[0] * 0.3 * col, wh.dir[1] * 0.3 * col, 0.01));
 
