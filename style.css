@@ -659,3 +659,6 @@ html.has-liquid{background:#000}
 /* Affiche carrée (Ritual Fest) */
 .mission-poster{aspect-ratio:1080/1140;padding:0;width:66.667%;justify-self:center;align-self:center;margin-inline:auto}
 .mission-poster .thumb{object-fit:fill}
+/* Images de mission non cliquables : pas de zoom au survol */
+.mission-media.is-static{cursor:default}
+.mission-media.is-static:hover .thumb{transform:none}
