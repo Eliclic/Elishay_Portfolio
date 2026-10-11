@@ -109,7 +109,8 @@ const bgMat = new THREE.ShaderMaterial({
       vec2 uv=(vUv-.5)/uZoom+.5;
       vec3 lg=mix(mix(texture2D(tLog,uv).rgb,texture2D(tBLog,uv).rgb,uB),texture2D(tRLog,uv).rgb,uR);
       vec3 fn=mix(mix(texture2D(tFinal,uv).rgb,texture2D(tBFinal,uv).rgb,uB),texture2D(tRFinal,uv).rgb,uR);
-      gl_FragColor=vec4(mix(lg,fn,step(vUv.x,uWipe))*uDim,uOpacity);
+      vec2 q=abs((vUv-.5)*vec2(4.,2.25))-vec2(2.,1.125)+.1;float dd=length(max(q,0.))+min(max(q.x,q.y),0.)-.1;
+      gl_FragColor=vec4(mix(lg,fn,step(vUv.x,uWipe))*uDim,uOpacity*(1.-smoothstep(-.006,.006,dd)));
     }`
 });
 // Calques transparents (personnage détouré, titre) : texture simple avec zoom.
@@ -160,6 +161,14 @@ function drawTitle(t, m) {
   titleTex.needsUpdate = true;
 }
 
+// Contour à coins arrondis (rayon 0,1), comme le masque de l'image.
+function roundEdge(color, opacity) {
+  const r = 0.1, w = FW / 2, h = FH / 2, sh = new THREE.Shape();
+  sh.moveTo(-w + r, -h); sh.lineTo(w - r, -h); sh.quadraticCurveTo(w, -h, w, -h + r); sh.lineTo(w, h - r); sh.quadraticCurveTo(w, h, w - r, h);
+  sh.lineTo(-w + r, h); sh.quadraticCurveTo(-w, h, -w, h - r); sh.lineTo(-w, -h + r); sh.quadraticCurveTo(-w, -h, -w + r, -h);
+  return new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(sh.getPoints(8)), edgeMat(color, opacity));
+}
+
 // ---------- Le cadre vidéo ----------
 const frame = new THREE.Group();
 root.add(frame);
@@ -171,7 +180,7 @@ const layers = {
 ['bg', 'person', 'title'].forEach((k, i) => { layers[k].renderOrder = i + 1; frame.add(layers[k]); });
 const layerEdges = {};
 for (const k in layers) {
-  const e = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(FW, FH)), edgeMat(0xe9edf7, 0.55));
+  const e = roundEdge(0xe9edf7, 0.55);
   layers[k].add(e);
   layerEdges[k] = e;
 }
@@ -183,7 +192,7 @@ const layerTags = {};
 });
 
 // Recadrage (zoom)
-const cropBox = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(FW, FH)), edgeMat(GOLD, 0.9));
+const cropBox = roundEdge(GOLD, 0.9);
 cropBox.position.z = 0.02; frame.add(cropBox);
 
 // Spline de roto : contour + points (fixes, tracés sur l'image)
@@ -400,14 +409,14 @@ function frameLoop() {
   const si = Math.min(N - 2, Math.floor(p)), sf = ease(clamp(p - si));
   root.position.x = lerp(sideX(sides[si]), sideX(sides[si + 1]), sf);
   root.position.y = mobile() ? 1.25 : 0;
-  root.scale.setScalar(mobile() ? 0.62 : 1);
+  root.scale.setScalar(mobile() ? 0.72 : 1);
   root.rotation.y = sx * 0.18 + (still ? 0 : Math.sin(t * 0.3) * 0.03);
   root.rotation.x = sy * 0.1;
 
   const inEdit = land * (1 - vfx);
-  frame.position.y = lerp(0, 1.25, inEdit) + lerp(0, 0.35, col * (1 - fin)) + (mobile() ? 0 : fin * 0.9);
+  frame.position.y = lerp(0, 1.35, inEdit) + lerp(0, 0.35, col * (1 - fin)) + (mobile() ? 0 : fin * 1.3);
   frame.position.x = lerp(0, -1.2, col * (1 - fin));
-  frame.scale.setScalar(lerp(1.15, 0.78, inEdit) * lerp(1, 0.72, col * (1 - fin)) * lerp(1, mobile() ? 1.18 : 1.02, fin));
+  frame.scale.setScalar(lerp(1.4, 0.9, inEdit) * lerp(1, 0.66, col * (1 - fin)) * lerp(1, mobile() ? 1.0 : 0.78, fin));
   frame.rotation.y = lerp(-0.25, 0, land) + lerp(0, 0.75, vfx * (1 - col)) + lerp(0, 0.12, col * (1 - fin));
   frame.rotation.x = lerp(0.08, 0, land) + lerp(0, 0.12, vfx * (1 - col));
   const spread = vfx * (1 - col);
