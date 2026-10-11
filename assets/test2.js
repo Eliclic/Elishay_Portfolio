@@ -417,9 +417,9 @@ function frameLoop() {
   const colOn = col * (1 - fin);
   if (mobile()) {
     // Sur téléphone, l'image occupe presque toute la largeur de l'écran
-    frame.position.y = 0.8 + lerp(0, 0.95, inEdit) + colOn * 0.9;
+    frame.position.y = 0.8 + lerp(0, 1.2, inEdit) + colOn * 0.9;
     frame.position.x = 0;
-    frame.scale.setScalar(2.18 * lerp(1, 0.85, colOn) * lerp(1, 0.85, vfx * (1 - col)));
+    frame.scale.setScalar(1.82 * lerp(1, 0.85, colOn) * lerp(1, 0.85, vfx * (1 - col)));
   } else {
     frame.position.y = lerp(0, 1.35, inEdit) + lerp(0, 0.35, colOn) + fin * 1.45;
     frame.position.x = lerp(0, -0.9, colOn);
@@ -459,7 +459,7 @@ function frameLoop() {
   // Timeline
   fade(tl, land * (1 - vfx));
   tl.scale.setScalar(0.8);
-  tl.position.y = lerp(-3.4, mobile() ? -1.35 : -1.05, land) - vfx * 1.2;
+  tl.position.y = lerp(-3.4, -1.05, land) - vfx * 1.2;
   tl.rotation.x = lerp(-0.5, -0.32, land);
   tracks.V2.position.z = 0.1 + land * 0.5;
   tracks.V1.position.z = 0.08 + land * 0.28;
