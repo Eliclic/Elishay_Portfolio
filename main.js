@@ -366,7 +366,7 @@ if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add("
   var vs = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
   var fs = [
     'precision mediump float;',
-    'uniform vec2 R;uniform float T;',
+    'uniform vec2 R;uniform float T;uniform float RR;',
     'float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}',
     'float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);',
     ' return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}',
@@ -374,11 +374,12 @@ if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add("
     ' for(int i=0;i<4;i++){v+=a*n(p);p=m*p;a*=.5;}return v;}',
     'void main(){',
     ' vec2 p=gl_FragCoord.xy/R*2.-1.;',
-    // Forme : carré très arrondi (superellipse), bord adouci comme le Fast Box Blur.
-    ' float r=pow(pow(abs(p.x),4.)+pow(abs(p.y),4.),.25);',
-    ' float mask=1.-smoothstep(.9,1.,r);',
+    // Forme : exactement le cadre en verre du titre (rectangle aux coins arrondis, rayon RR en px).
+    ' vec2 hp=R*.5;vec2 pp=p*hp;vec2 qq=abs(pp)-(hp-RR);',
+    ' float d=length(max(qq,0.))+min(max(qq.x,qq.y),0.)-RR;',
+    ' float r=clamp(1.+d/min(hp.x,hp.y),0.,1.);',
+    ' float mask=clamp(-d,0.,1.);',
     ' if(mask<=0.){gl_FragColor=vec4(0.);return;}',
-    // VR Plane to Sphere : la texture se resserre vers les bords, ce qui crée les filets lumineux.
     ' float z=sqrt(max(1.-r*r*.985,0.));',
     ' vec2 s=p/(z+.1);',
     // VR Rotate Sphere : la sphère tourne lentement (pan), la texture défile dessus.
@@ -399,13 +400,11 @@ if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add("
   ].join('\n');
 
   titles.forEach(function (h) {
-    var wrap = document.createElement('div');
-    wrap.className = 'title-blob';
-    h.parentNode.insertBefore(wrap, h);
+    // Le canvas vit dans le titre : il suit son cadre, ses coins et son flottement.
     var c = document.createElement('canvas');
+    c.className = 'title-liquid';
     c.setAttribute('aria-hidden', 'true');
-    wrap.appendChild(c);
-    wrap.appendChild(h);
+    h.insertBefore(c, h.firstChild);
     var gl = c.getContext('webgl', { antialias: false, alpha: true, premultipliedAlpha: true, powerPreference: 'low-power' });
     if (!gl) { c.remove(); return; }
     function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; }
@@ -420,8 +419,7 @@ if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add("
     var a = gl.getAttribLocation(pr, 'a');
     gl.enableVertexAttribArray(a);
     gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    var uR = gl.getUniformLocation(pr, 'R'), uT = gl.getUniformLocation(pr, 'T');
-    wrap.classList.add('is-on');
+    var uR = gl.getUniformLocation(pr, 'R'), uT = gl.getUniformLocation(pr, 'T'), uRR = gl.getUniformLocation(pr, 'RR');
 
     function size() {
       var k = Math.min(1, (window.devicePixelRatio || 1) * 0.6);
@@ -429,6 +427,7 @@ if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add("
       c.height = Math.max(2, Math.round(c.clientHeight * k));
       gl.viewport(0, 0, c.width, c.height);
       gl.uniform2f(uR, c.width, c.height);
+      gl.uniform1f(uRR, (parseFloat(getComputedStyle(h).borderTopLeftRadius) || 0) * c.width / Math.max(1, c.clientWidth));
     }
     var t0 = performance.now(), last = 0, visible = true;
     function draw(now) {
