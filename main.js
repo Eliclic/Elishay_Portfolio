@@ -21,6 +21,9 @@ if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add("
     img.className = 'thumb';
     img.alt = '';
     img.loading = 'lazy';
+    // Miniature maison (data-poster) à la place de celle de YouTube.
+    var poster = card.getAttribute('data-poster');
+    if (poster) { img.src = poster; card.insertBefore(img, card.firstChild); return; }
     img.src = 'https://i.ytimg.com/vi/' + id + '/maxresdefault.jpg';
     img.onload = function () {
       // YouTube renvoie une image grise de 120 px quand la version HD n'existe pas.
