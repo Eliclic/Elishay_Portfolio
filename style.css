@@ -652,3 +652,10 @@ html.has-liquid{background:#000}
 /* Lisibilité des textes posés directement sur le fond liquide */
 .has-liquid main p,.has-liquid main .eyebrow,.has-liquid .hero p,.has-liquid .page-hero p,.has-liquid .section-head{text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 18px rgba(0,0,0,.85)}
 .has-liquid .card p,.has-liquid .skill-box p,.has-liquid .explore-card p{text-shadow:none}
+
+/* Liquid glass rouge derrière les titres de page (canvas WebGL ajouté par main.js) */
+.title-blob{position:relative;isolation:isolate;max-width:100%;display:flex;justify-content:center}
+.title-blob>canvas{position:absolute;z-index:0;left:50%;top:50%;width:calc(100% + 80px);height:calc(100% + 110px);transform:translate(-50%,-50%);pointer-events:none;
+  filter:drop-shadow(0 0 36px rgba(255,0,0,.3))}
+.title-blob>h1{z-index:1}
+.title-blob.is-on>h1{-webkit-backdrop-filter:blur(4px) saturate(1.2);backdrop-filter:blur(4px) saturate(1.2)}

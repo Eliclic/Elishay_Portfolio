@@ -356,3 +356,97 @@ if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add("
   size();
   requestAnimationFrame(loop);
 })();
+
+// Liquid glass d'Elishay derrière les titres de page (d'après son effet After Effects :
+// Fractal Noise très contrasté, flou, enroulé sur une sphère VR qui tourne, teinte noir → rouge).
+(function () {
+  var titles = document.querySelectorAll('h1[data-blob]');
+  if (!titles.length) return;
+  var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var vs = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+  var fs = [
+    'precision mediump float;',
+    'uniform vec2 R;uniform float T;',
+    'float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}',
+    'float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);',
+    ' return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}',
+    'float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);',
+    ' for(int i=0;i<4;i++){v+=a*n(p);p=m*p;a*=.5;}return v;}',
+    'void main(){',
+    ' vec2 p=gl_FragCoord.xy/R*2.-1.;',
+    // Forme : carré très arrondi (superellipse), bord adouci comme le Fast Box Blur.
+    ' float r=pow(pow(abs(p.x),4.)+pow(abs(p.y),4.),.25);',
+    ' float mask=1.-smoothstep(.9,1.,r);',
+    ' if(mask<=0.){gl_FragColor=vec4(0.);return;}',
+    // VR Plane to Sphere : la texture se resserre vers les bords, ce qui crée les filets lumineux.
+    ' float z=sqrt(max(1.-r*r*.985,0.));',
+    ' vec2 s=p/(z+.1);',
+    // VR Rotate Sphere : la sphère tourne lentement (pan), la texture défile dessus.
+    ' vec2 uv=s*vec2(R.x/R.y,1.)*vec2(.75,.42)+vec2(T*.09,sin(T*.13)*.25);',
+    // Evolution : bruit déformé sur lui-même, contraste fort puis adouci.
+    ' vec2 q=vec2(fbm(uv*1.4+vec2(0.,T*.1)),fbm(uv*1.4+vec2(4.1,1.7)-T*.08));',
+    ' float v=fbm(uv*2.+1.3*q);',
+    ' float c=smoothstep(.3,.72,v);c=c*c*(3.-2.*c);',
+    ' float rim=smoothstep(.5,.9,r);',
+    ' float lum=clamp(c*(.65+.6*rim),0.,1.);',
+    // Bord lumineux toujours visible, strié par le bruit, pour garder la silhouette du verre.
+    ' float edge=smoothstep(.68,.9,r)*(1.-smoothstep(.93,1.,r));',
+    ' lum=max(lum,edge*(.3+.5*smoothstep(.35,.65,fbm(uv*3.+T*.05))));',
+    ' lum*=1.-smoothstep(.93,1.,r)*.6;',
+    ' vec3 col=vec3(.95,0.,0.)*lum+vec3(1.,.25,.2)*pow(lum,5.)*.3;',
+    ' float al=mask*(.7+.3*lum);',
+    ' gl_FragColor=vec4(col*mask,al);}'
+  ].join('\n');
+
+  titles.forEach(function (h) {
+    var wrap = document.createElement('div');
+    wrap.className = 'title-blob';
+    h.parentNode.insertBefore(wrap, h);
+    var c = document.createElement('canvas');
+    c.setAttribute('aria-hidden', 'true');
+    wrap.appendChild(c);
+    wrap.appendChild(h);
+    var gl = c.getContext('webgl', { antialias: false, alpha: true, premultipliedAlpha: true, powerPreference: 'low-power' });
+    if (!gl) { c.remove(); return; }
+    function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; }
+    var pr = gl.createProgram();
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs));
+    gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { c.remove(); return; }
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    var a = gl.getAttribLocation(pr, 'a');
+    gl.enableVertexAttribArray(a);
+    gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
+    var uR = gl.getUniformLocation(pr, 'R'), uT = gl.getUniformLocation(pr, 'T');
+    wrap.classList.add('is-on');
+
+    function size() {
+      var k = Math.min(1, (window.devicePixelRatio || 1) * 0.6);
+      c.width = Math.max(2, Math.round(c.clientWidth * k));
+      c.height = Math.max(2, Math.round(c.clientHeight * k));
+      gl.viewport(0, 0, c.width, c.height);
+      gl.uniform2f(uR, c.width, c.height);
+    }
+    var t0 = performance.now(), last = 0, visible = true;
+    function draw(now) {
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform1f(uT, (now - t0) / 1000 + 8);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    function loop(now) {
+      if (visible && !document.hidden && now - last > 33) { last = now; draw(now); }
+      if (!still) requestAnimationFrame(loop);
+    }
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }).observe(c);
+    }
+    window.addEventListener('resize', function () { size(); draw(performance.now()); });
+    size();
+    draw(performance.now());
+    requestAnimationFrame(loop);
+  });
+})();
