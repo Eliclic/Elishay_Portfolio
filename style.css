@@ -655,3 +655,6 @@ html.has-liquid{background:#000}
 
 /* Liquid glass rouge dans le cadre des titres de page (canvas WebGL ajouté par main.js) */
 .page-hero h1>.title-liquid{position:absolute;inset:0;z-index:-1;width:100%;height:100%;border-radius:inherit;pointer-events:none}
+
+/* Affiche carrée (Ritual Fest) */
+.mission-poster{aspect-ratio:1/1;padding:0}
