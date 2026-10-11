@@ -421,9 +421,9 @@ function frameLoop() {
     frame.position.x = 0;
     frame.scale.setScalar(1.82 * lerp(1, 0.85, colOn) * lerp(1, 0.85, vfx * (1 - col)));
   } else {
-    frame.position.y = lerp(0, 1.35, inEdit) + lerp(0, 0.35, colOn) + fin * 1.45;
-    frame.position.x = lerp(0, -0.9, colOn);
-    frame.scale.setScalar(1.32 * lerp(1.4, 0.9, inEdit) * lerp(1, 0.6, colOn) * lerp(1, 0.68, fin) * lerp(1, 0.88, vfx * (1 - col)));
+    frame.position.y = lerp(0, 1.55, inEdit) + lerp(0, 0.35, colOn) + fin * 1.45;
+    frame.position.x = lerp(0, -1.25, colOn);
+    frame.scale.setScalar(1.32 * lerp(1.4, 0.82, inEdit) * lerp(1, 0.52, colOn) * lerp(1, 0.68, fin) * lerp(1, 0.8, vfx * (1 - col)));
   }
   frame.rotation.y = lerp(-0.25, 0, land) + lerp(0, 0.75, vfx * (1 - col)) + lerp(0, 0.12, col * (1 - fin));
   frame.rotation.x = lerp(0.08, 0, land) + lerp(0, 0.12, vfx * (1 - col));
@@ -459,7 +459,7 @@ function frameLoop() {
   // Timeline
   fade(tl, land * (1 - vfx));
   tl.scale.setScalar(0.8);
-  tl.position.y = lerp(-3.4, -1.05, land) - vfx * 1.2;
+  tl.position.y = lerp(-3.4, mobile() ? -1.05 : -1.3, land) - vfx * 1.2;
   tl.rotation.x = lerp(-0.5, -0.32, land);
   tracks.V2.position.z = 0.1 + land * 0.5;
   tracks.V1.position.z = 0.08 + land * 0.28;
@@ -480,7 +480,7 @@ function frameLoop() {
   // Page Color
   fade(color, col * (1 - fin));
   if (mobile()) color.position.set(lerp(3.2, 0, col), -1.6, 0);
-  else color.position.set(lerp(3.2, 2.3, col), -0.05, 0);
+  else color.position.set(lerp(3.2, 2.65, col), -0.05, 0);
   color.rotation.y = lerp(-0.6, -0.15, col);
   wheels.forEach((wh) => wh.puck.position.set(wh.dir[0] * 0.3 * col, wh.dir[1] * 0.3 * col, 0.01));
 
