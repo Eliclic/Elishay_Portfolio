@@ -416,7 +416,7 @@ function frameLoop() {
   const inEdit = land * (1 - vfx);
   frame.position.y = lerp(0, 1.35, inEdit) + lerp(0, 0.35, col * (1 - fin)) + (mobile() ? 0 : fin * 1.3);
   frame.position.x = lerp(0, -1.2, col * (1 - fin));
-  frame.scale.setScalar(lerp(1.4, 0.9, inEdit) * lerp(1, 0.66, col * (1 - fin)) * lerp(1, mobile() ? 1.0 : 0.78, fin));
+  frame.scale.setScalar(1.1 * lerp(1.4, 0.9, inEdit) * lerp(1, 0.66, col * (1 - fin)) * lerp(1, mobile() ? 1.0 : 0.78, fin));
   frame.rotation.y = lerp(-0.25, 0, land) + lerp(0, 0.75, vfx * (1 - col)) + lerp(0, 0.12, col * (1 - fin));
   frame.rotation.x = lerp(0.08, 0, land) + lerp(0, 0.12, vfx * (1 - col));
   const spread = vfx * (1 - col);
