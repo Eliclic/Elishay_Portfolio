@@ -1,6 +1,6 @@
 // Page test 2 : le parcours d'une vidéo, décortiqué au scroll.
 // Rush brut → timeline DaVinci (cut, zoom, remplacement) → After Effects (roto, motion design) → page Color de DaVinci.
-// Tout est dessiné en code : l'image est peinte dans des canvas (un par calque) et affichée en 3D avec three.js.
+// Les images viennent du court métrage « Ration sous contrôle » : vidéos LOG et FINAL synchronisées, vignettes des plans et image détourée.
 import * as THREE from './vendor/three.module.min.js';
 
 const canvas = document.getElementById('cam3d');
@@ -66,124 +66,115 @@ function textPlane(lines, w, h, pw, ph) {
     new THREE.MeshBasicMaterial({ map: textTex(lines, pw, ph), transparent: true, depthWrite: false }));
 }
 
-// ---------- L'image (trois calques peints dans des canvas) ----------
-const CW = 640, CH = 360, FW = 4, FH = 2.25;
-function layerCanvas() {
-  const c = document.createElement('canvas'); c.width = CW; c.height = CH;
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  return { c, x: c.getContext('2d'), t };
-}
-const L = { bg: layerCanvas(), person: layerCanvas(), title: layerCanvas() };
 
-// Matériau d'un calque : zoom (recadrage), étalonnage (teal & orange) et volet avant / après.
-function layerMat(tex, zoomable) {
+// ---------- Les sources : vidéos LOG / FINAL et images fixes ----------
+const FW = 4, FH = 2.25;
+const BASE = 'assets/ration/';
+// MP4 (H.264) partout où c'est lu, sinon WebM (VP9).
+const EXT = document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"') ? '.mp4' : '.webm';
+function video(name) {
+  const v = document.createElement('video');
+  v.src = BASE + name + EXT; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true;
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.preload = 'auto';
+  v.play().catch(() => {});
+  const t = new THREE.VideoTexture(v);
+  return { v, t };
+}
+const vLog = video('log');
+const vFinal = video('final');
+// Sur iPhone, la lecture peut attendre un premier toucher.
+const kick = () => { vLog.v.play().catch(() => {}); vFinal.v.play().catch(() => {}); };
+window.addEventListener('touchstart', kick, { once: true, passive: true });
+window.addEventListener('click', kick, { once: true });
+
+const loader = new THREE.TextureLoader();
+const img = (n, srgb) => { const t = loader.load(BASE + n); if (srgb) t.colorSpace = THREE.SRGBColorSpace; return t; };
+const tex = {
+  bLog: img('mechant-log.jpg'), bFinal: img('mechant-final.jpg'),
+  rLog: img('roto-log.jpg'), rFinal: img('roto-final.jpg')
+};
+
+// Calque principal : mélange vidéo / plan B / image de roto, et volet LOG → FINAL.
+const bgMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false,
+  uniforms: {
+    tLog: { value: vLog.t }, tFinal: { value: vFinal.t }, tBLog: { value: tex.bLog }, tBFinal: { value: tex.bFinal },
+    tRLog: { value: tex.rLog }, tRFinal: { value: tex.rFinal },
+    uB: { value: 0 }, uR: { value: 0 }, uDim: { value: 1 }, uWipe: { value: 0 }, uZoom: { value: 1 }, uOpacity: { value: 1 }
+  },
+  vertexShader: 'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader: `
+    uniform sampler2D tLog,tFinal,tBLog,tBFinal,tRLog,tRFinal;uniform float uB,uR,uWipe,uZoom,uOpacity,uDim;varying vec2 vUv;
+    void main(){
+      vec2 uv=(vUv-.5)/uZoom+.5;
+      vec3 lg=mix(mix(texture2D(tLog,uv).rgb,texture2D(tBLog,uv).rgb,uB),texture2D(tRLog,uv).rgb,uR);
+      vec3 fn=mix(mix(texture2D(tFinal,uv).rgb,texture2D(tBFinal,uv).rgb,uB),texture2D(tRFinal,uv).rgb,uR);
+      gl_FragColor=vec4(mix(lg,fn,step(vUv.x,uWipe))*uDim,uOpacity);
+    }`
+});
+// Calques transparents (personnage détouré, titre) : texture simple avec zoom.
+function layerMat(t, zoomable) {
   return new THREE.ShaderMaterial({
     transparent: true, depthWrite: false,
-    uniforms: { map: { value: tex }, uZoom: { value: 1 }, uGrade: { value: 0 }, uWipe: { value: 1 }, uOpacity: { value: 1 }, uZoomable: { value: zoomable ? 1 : 0 } },
+    uniforms: { map: { value: t }, uZoom: { value: 1 }, uOpacity: { value: 1 }, uZoomable: { value: zoomable ? 1 : 0 } },
     vertexShader: 'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader: `
-      uniform sampler2D map;uniform float uZoom,uGrade,uWipe,uOpacity,uZoomable;varying vec2 vUv;
-      void main(){
-        vec2 uv=mix(vUv,(vUv-.5)/uZoom+.5,uZoomable);
-        vec4 c=texture2D(map,uv);
-        vec3 o=c.rgb;
-        float l=dot(o,vec3(.299,.587,.114));
-        vec3 g=(o-.5)*1.32+.5;
-        g=mix(vec3(l),g,1.55);
-        g+=vec3(-.05,.025,.07)*(1.-l)*1.2+vec3(.1,.035,-.06)*l;
-        float k=uGrade*step(vUv.x,uWipe);
-        gl_FragColor=vec4(clamp(mix(o,g,k),0.,1.),c.a*uOpacity);
-      }`
+    fragmentShader: 'uniform sampler2D map;uniform float uZoom,uOpacity,uZoomable;varying vec2 vUv;void main(){vec2 uv=mix(vUv,(vUv-.5)/uZoom+.5,uZoomable);vec4 c=texture2D(map,uv);gl_FragColor=vec4(c.rgb,c.a*uOpacity);}'
   });
 }
 
-// Le décor : plan A (ville au crépuscule) puis plan B (bord de mer), tons « log » plats et désaturés.
-function drawBg(t, mixB) {
-  const { x } = L.bg;
-  const sky = (a, b) => { const g = x.createLinearGradient(0, 0, 0, CH); g.addColorStop(0, a); g.addColorStop(0.62, b); return g; };
-  x.globalAlpha = 1;
-  // Plan A
-  x.fillStyle = sky('#6f7280', '#b5a796'); x.fillRect(0, 0, CW, CH);
-  x.fillStyle = 'rgba(232,214,188,.7)'; x.beginPath(); x.arc(470, 150, 34, 0, 7); x.fill();
-  x.fillStyle = '#5e5f66';
-  for (let i = 0; i < 14; i++) { const bw = 30 + (i * 37) % 40, bh = 50 + (i * 53) % 90; x.fillRect(i * 48 - 10, 250 - bh, bw, bh + 10); }
-  x.fillStyle = '#4c4d53'; x.fillRect(0, 252, CW, CH - 252);
-  x.fillStyle = 'rgba(255,240,210,.25)';
-  for (let i = 0; i < 40; i++) x.fillRect((i * 97) % CW, 200 + (i * 31) % 50, 3, 4);
-  // Plan B, fondu par-dessus
-  if (mixB > 0) {
-    x.globalAlpha = mixB;
-    x.fillStyle = sky('#7d8291', '#c9ab8c'); x.fillRect(0, 0, CW, CH);
-    x.fillStyle = 'rgba(240,215,175,.8)'; x.beginPath(); x.arc(200, 205, 40, 0, 7); x.fill();
-    x.fillStyle = '#6d7480'; x.fillRect(0, 210, CW, 60);
-    x.strokeStyle = 'rgba(235,215,185,.35)'; x.lineWidth = 2;
-    for (let i = 0; i < 9; i++) { const yy = 216 + i * 6; x.beginPath(); x.moveTo(140 - i * 6 + Math.sin(t * 2 + i) * 6, yy); x.lineTo(260 + i * 6 + Math.sin(t * 2 + i) * 6, yy); x.stroke(); }
-    x.fillStyle = '#8f8678'; x.fillRect(0, 262, CW, CH - 262);
-    x.globalAlpha = 1;
-  }
-  // Grain
-  x.fillStyle = 'rgba(255,255,255,.035)';
-  for (let i = 0; i < 160; i++) x.fillRect(Math.random() * CW, Math.random() * CH, 1.5, 1.5);
-  L.bg.t.needsUpdate = true;
-}
+// Contour de roto tracé à la main sur l'image (coordonnées sur 960 × 540).
+const ROTO = [[480, 90], [530, 100], [565, 135], [585, 200], [595, 280], [615, 330], [680, 360], [750, 390], [785, 440], [800, 540],
+  [270, 540], [268, 475], [295, 440], [285, 380], [298, 326], [330, 345], [350, 372], [372, 330], [378, 250], [385, 170], [410, 118], [445, 96]];
+const RW = 960, RH = 540;
+// Le personnage détouré : l'image coupée par le contour, sur un calque transparent.
+const cut = document.createElement('canvas'); cut.width = RW; cut.height = RH;
+const cutTex = new THREE.CanvasTexture(cut);
+const rotoImg = new Image();
+rotoImg.onload = () => {
+  const x = cut.getContext('2d');
+  x.beginPath(); ROTO.forEach(([a, b], i) => (i ? x.lineTo(a, b) : x.moveTo(a, b))); x.closePath();
+  x.save(); x.clip(); x.drawImage(rotoImg, 0, 0, RW, RH); x.restore();
+  cutTex.needsUpdate = true;
+};
+rotoImg.src = BASE + 'roto-log.jpg';
 
-// Le personnage qui marche, sur son propre calque transparent. Renvoie le contour pour la roto.
-function drawPerson(t) {
-  const { x } = L.person;
-  x.clearRect(0, 0, CW, CH);
-  const px = 120 + ((t * 26) % 420), gy = 300, s = Math.sin(t * 4.2);
-  const hip = [px, gy - 52], sh = [px, gy - 96];
-  const footR = [px + s * 18, gy], footL = [px - s * 18, gy];
-  const handR = [px + 4 - s * 14, gy - 58], handL = [px - 4 + s * 14, gy - 58];
-  x.strokeStyle = x.fillStyle = '#16161c'; x.lineCap = 'round'; x.lineJoin = 'round';
-  x.lineWidth = 11;
-  [[hip, footR], [hip, footL], [sh, handR], [sh, handL]].forEach(([a, b]) => { x.beginPath(); x.moveTo(...a); x.lineTo(...b); x.stroke(); });
-  x.lineWidth = 24; x.beginPath(); x.moveTo(...sh); x.lineTo(...hip); x.stroke();
-  x.beginPath(); x.arc(px, gy - 114, 11, 0, 7); x.fill();
-  L.person.t.needsUpdate = true;
-  // Contour de roto (points de la spline), en coordonnées canvas
-  return [[px, gy - 127], [px + 11, gy - 114], [px + 13, gy - 98], [handR[0] + 6, handR[1]], [px + 12, gy - 60],
-    [footR[0] + 6, gy + 2], [px + 2, gy - 44], [footL[0] - 6, gy + 2], [px - 12, gy - 60], [handL[0] - 6, handL[1]],
-    [px - 13, gy - 98], [px - 11, gy - 114]];
-}
-
-// Le titre animé (motion design), sur son calque.
+// Titre animé (motion design)
+const tc = document.createElement('canvas'); tc.width = 960; tc.height = 540;
+const tctx = tc.getContext('2d');
+const titleTex = new THREE.CanvasTexture(tc);
 function drawTitle(t, m) {
-  const { x } = L.title;
-  x.clearRect(0, 0, CW, CH);
-  if (m <= 0) { L.title.t.needsUpdate = true; return; }
-  const slide = (1 - m) * -160;
-  x.save(); x.translate(slide, 0);
-  x.fillStyle = 'rgba(212,185,140,.95)'; x.fillRect(40, 70, 6 + m * 120, 3);
-  x.font = '600 34px Inter, system-ui, sans-serif'; x.fillStyle = `rgba(245,245,247,${m})`; x.fillText('ELISHAY UNGLIK', 40, 112);
-  x.font = '500 13px "IBM Plex Mono", monospace'; x.fillStyle = `rgba(212,185,140,${m})`; x.fillText('MONTEUR VIDÉO · VFX', 42, 136);
-  x.restore();
-  // Formes graphiques qui tournent
-  x.strokeStyle = `rgba(245,245,247,${0.6 * m})`; x.lineWidth = 2;
-  x.beginPath(); x.arc(560, 80, 26 + Math.sin(t * 2) * 4, t, t + 4.4); x.stroke();
-  x.strokeStyle = `rgba(212,185,140,${0.8 * m})`;
-  x.beginPath(); x.arc(560, 80, 14, -t * 1.5, -t * 1.5 + 3.5); x.stroke();
-  L.title.t.needsUpdate = true;
+  tctx.clearRect(0, 0, 960, 540);
+  if (m > 0) {
+    const slide = (1 - m) * -220;
+    tctx.save(); tctx.translate(slide, 0);
+    tctx.fillStyle = 'rgba(212,185,140,.95)'; tctx.fillRect(60, 380, 8 + m * 200, 4);
+    tctx.font = '700 54px Inter, system-ui, sans-serif'; tctx.fillStyle = `rgba(245,245,247,${m})`; tctx.fillText('RATION SOUS', 60, 440);
+    tctx.fillText('CONTRÔLE', 60, 496);
+    tctx.font = '500 18px "IBM Plex Mono", monospace'; tctx.fillStyle = `rgba(212,185,140,${m})`; tctx.fillText('COURT MÉTRAGE · EICAR 2026', 64, 366);
+    tctx.restore();
+    tctx.strokeStyle = `rgba(245,245,247,${0.6 * m})`; tctx.lineWidth = 3;
+    tctx.beginPath(); tctx.arc(860, 90, 36 + Math.sin(t * 2) * 5, t, t + 4.4); tctx.stroke();
+    tctx.strokeStyle = `rgba(212,185,140,${0.85 * m})`;
+    tctx.beginPath(); tctx.arc(860, 90, 20, -t * 1.5, -t * 1.5 + 3.5); tctx.stroke();
+  }
+  titleTex.needsUpdate = true;
 }
 
 // ---------- Le cadre vidéo ----------
 const frame = new THREE.Group();
 root.add(frame);
-const layers = {};
-['bg', 'person', 'title'].forEach((k) => {
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(FW, FH), layerMat(L[k].t, k !== 'title'));
-  m.renderOrder = { bg: 1, person: 2, title: 3 }[k];
-  frame.add(m);
-  layers[k] = m;
-});
-// Contour argenté de chaque calque (visible quand on décortique)
+const layers = {
+  bg: new THREE.Mesh(new THREE.PlaneGeometry(FW, FH), bgMat),
+  person: new THREE.Mesh(new THREE.PlaneGeometry(FW, FH), layerMat(cutTex, true)),
+  title: new THREE.Mesh(new THREE.PlaneGeometry(FW, FH), layerMat(titleTex, false))
+};
+['bg', 'person', 'title'].forEach((k, i) => { layers[k].renderOrder = i + 1; frame.add(layers[k]); });
 const layerEdges = {};
 for (const k in layers) {
   const e = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(FW, FH)), edgeMat(0xe9edf7, 0.55));
   layers[k].add(e);
   layerEdges[k] = e;
 }
-// Étiquettes de calque (« Plan », « Roto », « Motion »)
 const layerTags = {};
 [['bg', 'PLAN · V1'], ['person', 'ROTO · ALPHA'], ['title', 'MOTION · TITRE']].forEach(([k, s]) => {
   const p = textPlane([[s, '500 30px "IBM Plex Mono", monospace', 32, 'rgba(212,185,140,.95)']], 1.6, 0.2, 512, 64);
@@ -191,30 +182,27 @@ const layerTags = {};
   layers[k].add(p); layerTags[k] = p;
 });
 
-// Recadrage (zoom) : rectangle de cadre qui se resserre
+// Recadrage (zoom)
 const cropBox = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(FW, FH)), edgeMat(GOLD, 0.9));
 cropBox.position.z = 0.02; frame.add(cropBox);
 
-// Spline de roto : contour + points
-const rotoGeo = new THREE.BufferGeometry();
-rotoGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(13 * 3), 3));
+// Spline de roto : contour + points (fixes, tracés sur l'image)
+const rotoPts3 = ROTO.concat([ROTO[0]]).map(([a, b]) => new THREE.Vector3((a / RW - 0.5) * FW, (0.5 - b / RH) * FH, 0));
+const rotoGeo = new THREE.BufferGeometry().setFromPoints(rotoPts3);
 const roto = new THREE.Group();
-const rotoLine = new THREE.Line(rotoGeo, edgeMat(GOLD, 0.95));
-const rotoPts = new THREE.Points(rotoGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.07, transparent: true, opacity: 1 }));
-roto.add(rotoLine, rotoPts);
+roto.add(new THREE.Line(rotoGeo, edgeMat(GOLD, 0.95)));
+roto.add(new THREE.Points(rotoGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.06, transparent: true, opacity: 1 })));
 roto.position.z = 0.01;
 layers.person.add(roto);
 
-// Point de tracking accroché à la tête
+// Point de tracking sur le visage
 const tracker = new THREE.Group();
-const tq = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(0.26, 0.26)), edgeMat(0x9fe6ff, 0.9));
-const tc1 = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-0.2, 0, 0), new THREE.Vector3(0.2, 0, 0), new THREE.Vector3(0, -0.2, 0), new THREE.Vector3(0, 0.2, 0)]), edgeMat(0x9fe6ff, 0.6));
-tracker.add(tq, tc1);
-tracker.position.z = 0.02;
+tracker.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(0.3, 0.3)), edgeMat(0x9fe6ff, 0.9)));
+tracker.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-0.22, 0, 0), new THREE.Vector3(0.22, 0, 0), new THREE.Vector3(0, -0.22, 0), new THREE.Vector3(0, 0.22, 0)]), edgeMat(0x9fe6ff, 0.6)));
+tracker.position.set((480 / RW - 0.5) * FW, (0.5 - 235 / RH) * FH, 0.02);
 layers.title.add(tracker);
-// Trajectoire pointillée du mouvement
 const pathPts = [];
-for (let i = 0; i <= 80; i++) pathPts.push(new THREE.Vector3(-1.6 + i * 0.04, -0.62 + Math.sin(i * 0.15) * 0.04, 0.02));
+for (let i = 0; i <= 60; i++) pathPts.push(new THREE.Vector3(-1.75 + i * 0.03, -0.55 + Math.sin(i * 0.2) * 0.04, 0.02));
 const motionPath = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pathPts), new THREE.LineDashedMaterial({ color: 0x9fe6ff, dashSize: 0.06, gapSize: 0.05, transparent: true, opacity: 0.7 }));
 motionPath.computeLineDistances();
 layers.title.add(motionPath);
@@ -232,33 +220,53 @@ const tracks = {};
   const tag = textPlane([[n, '600 40px Inter, sans-serif', 32, 'rgba(230,233,245,.75)']], 0.5, 0.2, 128, 64);
   tag.position.set(-TW / 2 + 0.38, 0, 0.02); g.add(tag);
 });
-// Graduations et timecode
 const ruler = new THREE.Group(); ruler.position.set(0.4, 1.0, 0.08); tl.add(ruler);
 for (let i = 0; i <= 28; i++) {
   const tick = boxMesh(0.012, i % 4 ? 0.06 : 0.14, 0.01, 0xcfd6ee, 0.6, 0xcfd6ee, 0); tick.position.x = -3.7 + i * (7.4 / 28); ruler.add(tick);
 }
-// Clips vidéo : le clip principal est en deux morceaux collés, séparés par le cut.
+// Les vrais plans du film, à leur durée réelle (en secondes), avec leur vignette répétée comme dans DaVinci.
+const DUR = 37.3, TL0 = -3.3, TLW = 7.4;
+const SHOTS = [[0, 1.88, 'thumb0.jpg', 'FRAISES'], [1.88, 4.12, 'thumb1.jpg', 'HOMME'], [4.12, 6.16, 'thumb2.jpg', 'COULOIR'],
+  [6.16, 19.24, 'thumb3.jpg', 'FILLE'], [19.24, 21.8, 'thumb4.jpg', 'PORTE'], [21.8, 23.16, 'thumb5.jpg', 'GLITCH'], [23.16, 37.3, 'thumb6.jpg', 'ÉCRANS']];
+const tX = (s) => TL0 + (s / DUR) * TLW;
 const CLIP = 0x3d63c9, CLIP_B = 0xb4458f, AUD = 0x2f9a78;
-function clip(w, color, name) {
+function clip(s0, s1, thumb, name, color = CLIP) {
+  const w = tX(s1) - tX(s0) - 0.02;
   const g = new THREE.Group();
-  const b = boxMesh(w, 0.4, 0.12, color, 0.75, 0xffffff, 0.5); g.add(b);
-  const t = textPlane([[name, '500 34px Inter, sans-serif', 32, 'rgba(255,255,255,.95)']], Math.min(w, 1.6), 0.2, 320, 64);
-  t.position.set(-w / 2 + Math.min(w, 1.6) / 2 + 0.06, 0.06, 0.07); g.add(t);
+  g.add(boxMesh(w, 0.4, 0.1, color, 0.85, 0xffffff, 0.45));
+  const t = img(thumb, true); t.wrapS = THREE.RepeatWrapping; t.repeat.x = Math.max(1, w / 0.5);
+  const strip = new THREE.Mesh(new THREE.PlaneGeometry(w - 0.04, 0.26), new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0.95, depthWrite: false }));
+  strip.position.set(0, -0.04, 0.06); g.add(strip);
+  if (w > 0.45) {
+    const lbl = textPlane([[name, '600 30px Inter, sans-serif', 32, 'rgba(255,255,255,.95)']], 0.9, 0.12, 320, 64);
+    lbl.position.set(-w / 2 + 0.5, 0.135, 0.06); g.add(lbl);
+  }
+  g.userData.x = (tX(s0) + tX(s1)) / 2;
+  g.position.x = g.userData.x;
   return g;
 }
-const clipA = clip(2.6, CLIP, 'RUSH_A.mov'); tracks.V1.add(clipA);
-const clipMid = clip(1.6, CLIP, 'RUSH_A.mov'); tracks.V1.add(clipMid);
-const clipC = clip(2.4, CLIP, 'RUSH_A.mov'); tracks.V1.add(clipC);
-const clipB = clip(1.6, CLIP_B, 'PLAN_B.mov'); tracks.V1.add(clipB);
+// Le long plan « FILLE » est coupé en trois : le milieu sera remplacé par le plan B.
+const clips = [];
+SHOTS.forEach(([a, b, th, n], i) => {
+  if (i === 3) {
+    clips.push({ c: clip(a, 10.5, th, n), side: -1 });
+    clips.push({ c: clip(10.5, 14.5, th, n), mid: true });
+    clips.push({ c: clip(14.5, b, th, n), side: 1 });
+  } else clips.push({ c: clip(a, b, th, n), side: i < 3 ? -1 : 1 });
+});
+clips.forEach((k) => tracks.V1.add(k.c));
+const clipMid = clips.find((k) => k.mid).c;
+const clipB = clip(10.5, 14.5, 'mechant-log.jpg', 'PLAN B', CLIP_B);
+tracks.V1.add(clipB);
 const audio = new THREE.Group(); tracks.A1.add(audio);
 for (let i = 0; i < 90; i++) {
   const hgt = 0.06 + Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.23)) * 0.3;
-  const w = boxMesh(0.04, hgt, 0.04, AUD, 0.9, AUD, 0); w.position.x = -3.1 + i * 0.075; audio.add(w);
+  const w = boxMesh(0.04, hgt, 0.04, AUD, 0.9, AUD, 0); w.position.x = -3.25 + i * 0.082; audio.add(w);
 }
-const blade = boxMesh(0.02, 1.9, 0.02, 0xff5a6a, 1, 0xff5a6a, 0.9); blade.position.z = 0.2; tl.add(blade);
+const blade = boxMesh(0.02, 1.9, 0.02, 0xff5a6a, 1, 0xff5a6a, 0.9); blade.position.set(tX(10.5), 0, 0.3); tl.add(blade);
 const playhead = boxMesh(0.025, 2.1, 0.02, 0xf2f2f2, 1, 0xffffff, 0.6); playhead.position.z = 0.22; tl.add(playhead);
-const tlTitle = textPlane([['DaVinci Resolve · Edit', '500 30px "IBM Plex Mono", monospace', 32, 'rgba(212,185,140,.95)']], 2.6, 0.2, 640, 64);
-tlTitle.position.set(-TW / 2 + 1.5, 1.32, 0.05); tl.add(tlTitle);
+const tlTitle = textPlane([['DaVinci Resolve · Edit · Ration sous contrôle', '500 30px "IBM Plex Mono", monospace', 32, 'rgba(212,185,140,.95)']], 4.4, 0.2, 1100, 64);
+tlTitle.position.set(-TW / 2 + 2.4, 1.32, 0.05); tl.add(tlTitle);
 
 // ---------- Page Color de DaVinci ----------
 const color = new THREE.Group();
@@ -300,8 +308,13 @@ nodes.add(nodeLink);
 const colorTitle = textPlane([['DaVinci Resolve · Color', '500 30px "IBM Plex Mono", monospace', 32, 'rgba(212,185,140,.95)']], 2.6, 0.2, 640, 64);
 colorTitle.position.set(0, 0.95, 0); color.add(colorTitle);
 
+
 // Volet avant / après
 const wipeLine = boxMesh(0.015, FH, 0.01, 0xffffff, 0.9, 0xffffff, 0.8); wipeLine.position.z = 0.05; frame.add(wipeLine);
+const tagLog = textPlane([['LOG', '600 34px "IBM Plex Mono", monospace', 32, 'rgba(255,255,255,.85)', 'center']], 0.5, 0.15, 128, 64);
+const tagFin = textPlane([['FINAL', '600 34px "IBM Plex Mono", monospace', 32, 'rgba(212,185,140,.95)', 'center']], 0.6, 0.15, 160, 64);
+tagLog.position.set(0.3, FH / 2 - 0.14, 0.01); tagFin.position.set(-0.36, FH / 2 - 0.14, 0.01);
+wipeLine.add(tagLog, tagFin);
 
 // Poussière lumineuse
 const dust = new THREE.BufferGeometry();
@@ -312,12 +325,10 @@ const dustPts = new THREE.Points(dust, new THREE.PointsMaterial({ color: 0xcfd6e
 scene.add(dustPts);
 
 // ---------- Étiquettes ----------
-const anchors = {
-  blade: blade, crop: cropBox, replace: clipB, roto: roto, title: tracker, wheels: wheels[1].g, nodes: nodes
-};
+const anchors = { blade, crop: cropBox, replace: clipB, roto, title: tracker, wheels: wheels[1].g, nodes };
 const labelDefs = {
   blade: ['Cut', 'LAME · B'], crop: ['Zoom', 'RECADRAGE 125 %'], replace: ['Remplacement', 'PLAN B'],
-  roto: ['Rotoscopie', 'SPLINE · 12 POINTS'], title: ['Tracking', 'POINT SUR LA TÊTE'],
+  roto: ['Rotoscopie', `SPLINE · ${ROTO.length} POINTS`], title: ['Tracking', 'POINT SUR LE VISAGE'],
   wheels: ['Roues colorimétriques', 'LIFT · GAMMA · GAIN'], nodes: ['Nœuds', 'BASE → LOOK → PEAU']
 };
 const labelEls = {};
@@ -333,7 +344,7 @@ for (const k in labelDefs) {
 }
 
 // ---------- Scroll ----------
-const N = panels.length; // 8 étapes : progress va de 0 à 7
+const N = panels.length;
 let progress = 0, smooth = 0, mx = 0, my = 0, sx = 0, sy = 0;
 function readScroll() {
   const max = document.documentElement.scrollHeight - window.innerHeight;
@@ -353,7 +364,6 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Côté du texte pour chaque étape (le décor se décale de l'autre côté sur ordinateur)
 const sides = ['left', 'right', 'left', 'right', 'left', 'right', 'left', 'center'];
 const sideX = (s) => (mobile() ? 0 : s === 'left' ? 1.9 : s === 'right' ? -1.9 : 0);
 
@@ -366,25 +376,27 @@ function frameLoop() {
   sx += (mx - sx) * 0.05; sy += (my - sy) * 0.05;
   const p = smooth;
 
-  // Les phases
-  const land = ramp(p, 0.2, 1.0);       // le rush descend dans la timeline
-  const cut = ramp(p, 1.2, 1.9);        // coup de lame
-  const zoom = ramp(p, 1.5, 2.0);       // recadrage
-  const rep = ramp(p, 2.2, 3.0);        // remplacement par le plan B
-  const vfx = ramp(p, 3.2, 4.0);        // calques décortiqués, roto
-  const mot = ramp(p, 4.2, 5.0);        // motion design
-  const col = ramp(p, 5.2, 6.0);        // page Color
-  const fin = ramp(p, 6.2, 7.0);        // rendu final
+  const land = ramp(p, 0.2, 1.0);
+  const cutF = ramp(p, 1.2, 1.9);
+  const zoom = ramp(p, 1.5, 2.0);
+  const rep = ramp(p, 2.2, 3.0);
+  const vfx = ramp(p, 3.2, 4.0);
+  const mot = ramp(p, 4.2, 5.0);
+  const col = ramp(p, 5.2, 6.0);
+  const fin = ramp(p, 6.2, 7.0);
 
-  // Peinture des calques (limitée à ~30 images/s)
-  if (t - lastPaint > 0.033 || still) {
-    lastPaint = t;
-    drawBg(t, rep);
-    var outline = drawPerson(t);
-    drawTitle(t, mot);
+  // Les deux vidéos restent calées l'une sur l'autre : petite correction de vitesse, saut seulement si l'écart est grand.
+  if (vLog.v.readyState >= 2 && vFinal.v.readyState >= 2 && !vFinal.v.seeking) {
+    const d = vLog.v.currentTime - vFinal.v.currentTime;
+    if (Math.abs(d) > 1) vFinal.v.currentTime = vLog.v.currentTime;
+    else vFinal.v.playbackRate = clamp(1 + d * 0.8, 0.8, 1.2);
   }
+  // Pour l'étalonnage, on reste sur les plans de la fille (6 s à 21 s), les plus parlants en LOG / FINAL.
+  if (col > 0.01 && vLog.v.readyState >= 2 && !vLog.v.seeking && (vLog.v.currentTime < 6.2 || vLog.v.currentTime > 21.5)) {
+    vLog.v.currentTime = 6.3; vFinal.v.currentTime = 6.3;
+  }
+  if (t - lastPaint > 0.033 || still) { lastPaint = t; drawTitle(t, mot); }
 
-  // Placement général (côté du texte)
   const si = Math.min(N - 2, Math.floor(p)), sf = ease(clamp(p - si));
   root.position.x = lerp(sideX(sides[si]), sideX(sides[si + 1]), sf);
   root.position.y = mobile() ? 1.25 : 0;
@@ -392,83 +404,71 @@ function frameLoop() {
   root.rotation.y = sx * 0.18 + (still ? 0 : Math.sin(t * 0.3) * 0.03);
   root.rotation.x = sy * 0.1;
 
-  // Le cadre vidéo : grand au début, viewer au-dessus de la timeline, puis décortiqué
   const inEdit = land * (1 - vfx);
-  frame.position.y = lerp(0, 1.25, inEdit) + lerp(0, 0.35, col * (1 - fin)) + (mobile() ? 0 : fin * 0.75);
-  frame.position.x = lerp(0, -1.35, col * (1 - fin));
-  frame.scale.setScalar(lerp(1.15, 0.78, inEdit) * lerp(1, 0.85, col * (1 - fin)) * lerp(1, mobile() ? 1.18 : 1.02, fin));
+  frame.position.y = lerp(0, 1.25, inEdit) + lerp(0, 0.35, col * (1 - fin)) + (mobile() ? 0 : fin * 0.9);
+  frame.position.x = lerp(0, -1.2, col * (1 - fin));
+  frame.scale.setScalar(lerp(1.15, 0.78, inEdit) * lerp(1, 0.72, col * (1 - fin)) * lerp(1, mobile() ? 1.18 : 1.02, fin));
   frame.rotation.y = lerp(-0.25, 0, land) + lerp(0, 0.75, vfx * (1 - col)) + lerp(0, 0.12, col * (1 - fin));
   frame.rotation.x = lerp(0.08, 0, land) + lerp(0, 0.12, vfx * (1 - col));
   const spread = vfx * (1 - col);
   layers.bg.position.z = -spread * 0.9;
-  layers.person.position.z = spread * 0.15;
+  layers.person.position.z = spread * 0.25;
   layers.title.position.z = spread * 1.2;
   for (const k in layerEdges) layerEdges[k].material.opacity = 0.2 + spread * 0.5;
   for (const k in layerTags) fade(layerTags[k], spread * (k === 'title' ? mot : 1));
+  fade(layers.person, vfx * (1 - col));
+  fade(layers.title, mot * (1 - col));
 
-  // Zoom (recadrage) appliqué à l'image ; le rectangle doré montre la zone gardée pendant l'opération
-  const z = 1 + zoom * 0.25;
-  layers.bg.material.uniforms.uZoom.value = z;
-  layers.person.material.uniforms.uZoom.value = z;
+  // Ce que montre l'image : vidéo, puis plan B pendant le remplacement, puis l'image détourée pour les VFX
+  const showB = rep * (1 - ramp(p, 3.0, 3.4));
+  bgMat.uniforms.uB.value = showB;
+  bgMat.uniforms.uR.value = vfx * (1 - col);
+  bgMat.uniforms.uDim.value = 1 - 0.55 * vfx * (1 - col);
+  const z = 1 + zoom * 0.25 * (1 - vfx);
+  bgMat.uniforms.uZoom.value = z;
+  layers.person.material.uniforms.uZoom.value = 1;
   cropBox.scale.setScalar(lerp(1, 0.8, ramp(p, 1.45, 1.75)) * (1 + ramp(p, 1.75, 2.0) * 0.25));
   fade(cropBox, ramp(p, 1.4, 1.6) * (1 - ramp(p, 2.0, 2.3)));
-
-  // Roto : spline autour du personnage
-  if (outline) {
-    const a = rotoGeo.attributes.position;
-    outline.concat([outline[0]]).forEach(([cx, cy], i) => {
-      a.setXYZ(i, (cx / CW - 0.5) * FW * z, (0.5 - cy / CH) * FH * z, 0);
-    });
-    a.needsUpdate = true;
-    const head = outline[0];
-    tracker.position.x = (head[0] / CW - 0.5) * FW * z;
-    tracker.position.y = (0.5 - (head[1] + 12) / CH) * FH * z;
-  }
   fade(roto, vfx * (1 - col));
   fade(tracker, mot * (1 - col));
   fade(motionPath, mot * (1 - col));
 
-  // Étalonnage : volet de gauche à droite, puis tout l'image étalonnée
-  for (const k in layers) {
-    layers[k].material.uniforms.uGrade.value = col;
-    layers[k].material.uniforms.uWipe.value = lerp(0, 1, ramp(p, 5.4, 6.4));
-  }
-  wipeLine.position.x = (lerp(0, 1, ramp(p, 5.4, 6.4)) - 0.5) * FW;
-  fade(wipeLine, col * (1 - ramp(p, 6.2, 6.5)));
+  // Étalonnage : le volet passe du LOG au FINAL
+  const w = ramp(p, 5.4, 6.4);
+  bgMat.uniforms.uWipe.value = w;
+  wipeLine.position.x = (w - 0.5) * FW;
+  fade(wipeLine, col * (1 - ramp(p, 6.3, 6.6)));
 
   // Timeline
   fade(tl, land * (1 - vfx));
   tl.scale.setScalar(0.8);
   tl.position.y = lerp(-3.4, -1.05, land) - vfx * 1.2;
   tl.rotation.x = lerp(-0.5, -0.32, land);
-  // Les pistes se décollent légèrement en profondeur (vue éclatée)
   tracks.V2.position.z = 0.1 + land * 0.5;
   tracks.V1.position.z = 0.08 + land * 0.28;
-  tracks.A1.position.z = 0.06;
-  // Le rush tombe dans V1, puis le cut ouvre un trou, puis le plan B le remplace
   const drop = (1 - land) * 2.4;
-  const gap = cut * 0.22;
-  clipA.position.set(-1.6 - gap, drop, 0);
-  clipMid.position.set(0.5, drop + rep * 1.2, rep * 0.6);
-  clipC.position.set(2.5 + gap, drop, 0);
+  const gap = cutF * 0.16;
+  clips.forEach((k) => {
+    if (k.mid) return;
+    k.c.position.set(k.c.userData.x + (k.side || 0) * gap, drop, 0);
+  });
+  clipMid.position.set(clipMid.userData.x, drop + rep * 1.2, rep * 0.6);
   fade(clipMid, land * (1 - rep));
-  clipB.position.set(0.5, lerp(1.25, 0, rep), lerp(0.6, 0, rep));
+  clipB.position.set(clipB.userData.x, lerp(1.25, 0, rep), lerp(0.6, 0, rep));
   fade(clipB, rep * land * (1 - vfx));
-  blade.position.set(-0.3, 0, 0.3);
   fade(blade, ramp(p, 1.1, 1.3) * (1 - ramp(p, 2.0, 2.3)) * (1 - vfx));
-  playhead.position.x = -3.3 + ((t * 0.5) % 7.4);
-  audio.position.z = 0;
+  // La tête de lecture suit vraiment la vidéo
+  playhead.position.x = tX(vLog.v.currentTime || 0);
 
   // Page Color
   fade(color, col * (1 - fin));
-  color.position.set(lerp(3.2, 2.1, col), -0.05, 0);
+  color.position.set(lerp(3.2, 2.05, col), -0.05, 0);
   color.rotation.y = lerp(-0.6, -0.15, col);
-  wheels.forEach((w) => w.puck.position.set(w.dir[0] * 0.3 * col, w.dir[1] * 0.3 * col, 0.01));
+  wheels.forEach((wh) => wh.puck.position.set(wh.dir[0] * 0.3 * col, wh.dir[1] * 0.3 * col, 0.01));
 
   dustPts.rotation.y = t * 0.01;
   renderer.render(scene, cam);
 
-  // Étiquettes visibles par phase
   const W = window.innerWidth, H = window.innerHeight;
   const show = {
     blade: ramp(p, 1.2, 1.5) * (1 - ramp(p, 1.8, 2.1)),
@@ -496,7 +496,6 @@ function frameLoop() {
     ln.setAttribute('x1', px); ln.setAttribute('y1', py); ln.setAttribute('x2', lx); ln.setAttribute('y2', ly);
   }
 
-  // Textes des étapes
   panels.forEach((el, k) => {
     const d = p - k;
     const a = Math.max(0, 1 - Math.abs(d) * 2.4);
