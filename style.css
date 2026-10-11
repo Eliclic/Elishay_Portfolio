@@ -657,4 +657,4 @@ html.has-liquid{background:#000}
 .page-hero h1>.title-liquid{position:absolute;inset:0;z-index:-1;width:100%;height:100%;border-radius:inherit;pointer-events:none}
 
 /* Affiche carrée (Ritual Fest) */
-.mission-poster{aspect-ratio:1/1;padding:0}
+.mission-poster{aspect-ratio:1/1;padding:0;width:66.667%;justify-self:center;align-self:center;margin-inline:auto}
