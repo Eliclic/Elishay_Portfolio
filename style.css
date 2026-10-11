@@ -643,3 +643,12 @@ html{overflow-x:clip}
 .is-android .icons.marquee{padding:2px 0 22px}
 .is-android .marquee-set{gap:24px;padding-right:24px}
 .is-android .icons.marquee img{width:38px;height:38px;border-radius:9px}
+
+/* Fond « métal liquide » animé (canvas WebGL ajouté par main.js) */
+.liquid-bg{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;display:block}
+html.has-liquid{background:#000}
+.has-liquid body{background:transparent}
+.has-liquid .stack-panel:not(.explore-card){background:transparent}
+/* Lisibilité des textes posés directement sur le fond liquide */
+.has-liquid main p,.has-liquid main .eyebrow,.has-liquid .hero p,.has-liquid .page-hero p,.has-liquid .section-head{text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 18px rgba(0,0,0,.85)}
+.has-liquid .card p,.has-liquid .skill-box p,.has-liquid .explore-card p{text-shadow:none}

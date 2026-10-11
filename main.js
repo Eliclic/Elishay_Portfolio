@@ -166,7 +166,7 @@ if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add("
         var h = p.offsetHeight;
         var stick = Math.min(0, vh - h);
         // Le fondu se termine un peu avant le recouvrement complet, pour ne laisser aucun reste visible.
-        t = Math.min(1, Math.max(0, 1.3 * (stick + h - next.getBoundingClientRect().top) / Math.min(h, vh)));
+        t = Math.min(1, Math.max(0, (document.documentElement.classList.contains('has-liquid') ? 2.2 : 1.3) * (stick + h - next.getBoundingClientRect().top) / Math.min(h, vh)));
       }
       // Courbe douce (smoothstep) pour que le fondu démarre et finisse sans à-coup.
       var e = t * t * (3 - 2 * t);
@@ -281,4 +281,78 @@ if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add("
     if (!ticking) { ticking = true; requestAnimationFrame(update); }
   }, { passive: true });
   update();
+})();
+
+// Fond « métal liquide » animé (WebGL), d'après la texture After Effects d'Elishay :
+// bruit fractal tourbillonnant, teinte métallique gris argent, veines sombres et léger glow doré.
+(function () {
+  var c = document.createElement('canvas');
+  c.className = 'liquid-bg';
+  c.setAttribute('aria-hidden', 'true');
+  var gl = c.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power' });
+  if (!gl) return;
+  document.body.insertBefore(c, document.body.firstChild);
+  document.documentElement.classList.add('has-liquid');
+
+  var vs = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+  var fs = [
+    'precision mediump float;',
+    'uniform vec2 R;uniform float T;',
+    'float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}',
+    'float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);',
+    ' return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}',
+    'float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);',
+    ' for(int i=0;i<4;i++){v+=a*n(p);p=m*p;a*=.5;}return v;}',
+    // Hauteur du « liquide » : bruit déformé deux fois sur lui-même (effet Swirly).
+    'float H(vec2 p){vec2 q=vec2(fbm(p*.9+vec2(0.,T*.16)),fbm(p*.9+vec2(5.2,1.3)-T*.13));',
+    ' return fbm(p+1.7*q+vec2(T*.05,-T*.04));}',
+    'void main(){vec2 uv=gl_FragCoord.xy/R.y;vec2 p=uv*8.;',
+    ' float e=.035;float h=H(p);float hx=H(p+vec2(e,0.));float hy=H(p+vec2(0.,e));',
+    ' vec3 N=normalize(vec3((h-hx)/e,(h-hy)/e,2.2));',
+    ' vec3 L=normalize(vec3(-.4,.6,.7));',
+    ' float dif=max(dot(N,L),0.);float spe=pow(max(dot(reflect(-L,N),vec3(0,0,1)),0.),18.);',
+    // Contraste fort comme le rendu AE : blancs argentés, veines presque noires.
+    ' float m=smoothstep(.04,.42,abs(h-.5)*2.)*(.45+.75*smoothstep(.3,.75,h));',
+    ' vec3 col=vec3(.86,.87,.9)*m*(.35+.65*dif)+vec3(1.)*spe*.55*m;',
+        // Léger glow doré champagne sur les reflets.
+    ' vec3 gold=vec3(.83,.72,.55);col+=gold*(m*.07+pow(m,3.)*.2+spe*.14);',
+    ' vec2 v=gl_FragCoord.xy/R-.5;col*=1.-dot(v,v)*.9;',
+    ' gl_FragColor=vec4(col*.5,1.);}'
+  ].join('\n');
+
+  function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; }
+  var pr = gl.createProgram();
+  gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs));
+  gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(pr);
+  if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { c.remove(); document.documentElement.classList.remove('has-liquid'); return; }
+  gl.useProgram(pr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  var a = gl.getAttribLocation(pr, 'a');
+  gl.enableVertexAttribArray(a);
+  gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
+  var uR = gl.getUniformLocation(pr, 'R'), uT = gl.getUniformLocation(pr, 'T');
+
+  // Rendu en demi-résolution (texture douce, économe en batterie), 30 images/s.
+  function size() {
+    var k = Math.min(0.5, 900 / Math.max(window.innerWidth, window.innerHeight));
+    c.width = Math.round(window.innerWidth * k);
+    c.height = Math.round(window.innerHeight * k);
+    gl.viewport(0, 0, c.width, c.height);
+    gl.uniform2f(uR, c.width, c.height);
+  }
+  var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var t0 = performance.now(), last = 0;
+  function draw(now) {
+    gl.uniform1f(uT, (now - t0) / 1000 + 20);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  function loop(now) {
+    if (!document.hidden && now - last > 33) { last = now; draw(now); }
+    if (!still) requestAnimationFrame(loop);
+  }
+  window.addEventListener('resize', function () { size(); if (still) draw(performance.now()); });
+  size();
+  requestAnimationFrame(loop);
 })();
