@@ -459,7 +459,7 @@ function frameLoop() {
   // Timeline
   fade(tl, land * (1 - vfx));
   tl.scale.setScalar(0.8);
-  tl.position.y = lerp(-3.4, mobile() ? -1.05 : -1.3, land) - vfx * 1.2;
+  tl.position.y = lerp(-3.4, mobile() ? -1.55 : -1.7, land) - vfx * 1.2;
   tl.rotation.x = lerp(-0.5, -0.32, land);
   tracks.V2.position.z = 0.1 + land * 0.5;
   tracks.V1.position.z = 0.08 + land * 0.28;
